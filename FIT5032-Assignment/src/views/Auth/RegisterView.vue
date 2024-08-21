@@ -1,13 +1,13 @@
 <template>
     <h1 class="text-center">Register View</h1>
 
-    <form @submit.prevent="submitForm">
+    <form @submit.prevent="addUser">
         <div class="row mb-3">
             <div class="col-md-12 col-sm-12 col-12">
                 <label for="username" class="form-label">Username</label>
                 <input type="text" class="form-control" id="username" 
-                    @blur="() => validateName(true)" 
-                    @input="() => validateName(false)"
+                    @blur="() => validateUserName(true)" 
+                    @input="() => validateUserName(false)"
                     v-model="formData.username">
                 <div v-if="errors.username" class="text-danger">{{ errors.username }}</div>
             </div>
@@ -59,8 +59,7 @@
                 <label for="confirm-password" class="form-label">Confirm Password</label>
                 <input type="password" class="form-control" id="confirm-password" 
                     @blur="() => validateConfirmPassword(true)" 
-                    @input="() => validateConfirmPassword(false)"
-                    v-model="formData.confirmPassword">
+                    @input="() => validateConfirmPassword(false)" v-model="confirmPassword">
                 <div v-if="errors.confirmPassword" class="text-danger">{{ errors.confirmPassword }}</div>
             </div>
         </div>
@@ -92,24 +91,24 @@
         lname: '',
         fname: '',
         password: '',
-        confirmPassword: '',
         role: '',
         email: ''
     });
 
-    const submittedCards = ref([]);
+    const users = ref([]);
 
-    const submitForm = () => {
-        validateName(true);
+    const addUser = () => {
+        validateUserName(true);
         validatePassword(true);
         validateRole(true);
         validateConfirmPassword(true);
-        
-        if(!errors.value.username && !errors.value.password && !validateRole && !validateConfirmPassword){
-            submittedCards.value.push({
+        validateFName(true);
+        validateLName(true);
+        if(Object.values(errors.value).some(error => error !== null)){
+            users.value.push({
             ...formData.value
             });
-            // clearForm();
+            localStorage.setItem('Users', JSON.stringify(users));
         }
     };
 
@@ -117,13 +116,35 @@
         username: null,
         password: null,
         role: null,
+        confirmPassword: null,
+        lname: null,
+        fname: null
     });
 
-    const validateName = (blur) => {
+    const validateUserName = (blur) => {
         if (formData.value.username.length <3){
             if(blur) errors.value.username = "Name must be at least 3 characters";
         } else {
             errors.value.username = null;
+        }
+    }
+    const validateFName = (blur) => {
+        if (!formData.value.fname) {
+            if(blur) errors.value.fname = 'Name is required.';
+        } else if (!/^[A-Za-z]+$/.test(formData.value.fname)) {
+            if(blur) errors.value.fname = 'Name should only contain letters.';
+        } else {
+            errors.value.fname = null;
+        }
+    }
+
+    const validateLName = (blur) => {
+        if (!formData.value.lname) {
+            if(blur) errors.value.lname = 'Last Name is required.';
+        } else if (!/^[A-Za-z]+$/.test(formData.value.lname)) {
+            if(blur) errors.value.lname = 'Last name should only contain letters.';
+        } else {
+            errors.value.lname = null;
         }
     }
 
@@ -157,9 +178,9 @@
             errors.value.gender = null;
         }
     }
-
-    const validateConfirmPassword = (blur) => {
-        if (formData.value.password !== formData.value.confirmPassword) {
+    const confirmPassword = ref("");
+    const validateConfirmPassword = (blur) => {   
+        if (formData.value.password !== confirmPassword.value) {
             if (blur) errors.value.confirmPassword = 'Passwords do not match.'
         } else {
             errors.value.confirmPassword = null
