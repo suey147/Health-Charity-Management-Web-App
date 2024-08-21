@@ -70,9 +70,9 @@
                     @blur="() => validateRole(true)" 
                     @input="() => validateRole(false)"
                     v-model="formData.role">
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
+                    <option value="user">Participant</option>
+                    <option value="user">Volunteer</option>
+                    <option value="admin">Admin</option>
                 </select>
                 <div v-if="errors.role" class="text-danger">{{ errors.role }}</div>
         </div>

@@ -4,7 +4,7 @@
         <div class="row mb-3">
             <div class="col-md-12 col-sm-12 col-12">
                 <label for="username" class="form-label">Username</label>
-                <input type="email" id="username" class="form-control" placeholder="Email address" required="" autofocus="" autocomplete="off"  v-model="formData.username">
+                <input type="text" id="username" class="form-control" placeholder="Email address" required="" autofocus="" autocomplete="off"  v-model="formData.username">
             </div>
         </div>
         <!-- password -->
@@ -37,8 +37,14 @@ const formData = ref({
 });
 
 const submitForm = () => {
-    if(formData.value.username == "admin" && formData.value.password == "pass"){
-        store.commit('setAuthenticated', true);
+    // WHERE SHOULD WE STORE THE USER DATA AS LOCAL STORAGE IS NOT A GOOD APPROACH
+    const allUsers = JSON.parse(localStorage.getItem('Users'));
+
+    let user = null;
+    user = allUsers._value.find(user => (user.username === formData.value.username && user.password === formData.value.password));
+
+    if(user){
+        store.commit('setAuthenticated', {isAuthenticated: true, role: user.role});
         const redirect = router.currentRoute.value.query.redirect || { name: 'Home' };
         router.push(redirect);
     } else {
