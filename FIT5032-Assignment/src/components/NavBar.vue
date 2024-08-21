@@ -10,13 +10,33 @@
           <!-- Nav -->
           <ul class="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">
             <li>
-              <a href="#" class="nav-link text-secondary">About us</a>
+              <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="aboutUsDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                  About us
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="aboutUsDropdownButton">
+                  <li><a class="dropdown-item" href="#">Action</a></li>
+                  <li><a class="dropdown-item" href="#">Another action</a></li>
+                  <li><a class="dropdown-item" href="#">Something else here</a></li>
+                </ul>
+              </div>
             </li>
             <li>
-              <a href="#" class="nav-link text-white">Supports</a>
+              <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="supportsDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                  Supports
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="supportsDropdownButton">
+                  <li><a class="dropdown-item" href="#">Action</a></li>
+                  <li><a class="dropdown-item" href="#">Another action</a></li>
+                  <li><a class="dropdown-item" href="#">Something else here</a></li>
+                </ul>
+              </div>
             </li>
             <li>
-              <a href="#" class="nav-link text-white">Knowledge hub</a>
+              <button class="btn btn-secondary" type="button">
+                  Knowledge Hub
+              </button>
             </li>
 
             <!-- Buttons -->
@@ -38,5 +58,13 @@ import IconLogo from './icons/IconLogo.vue';
 <style scoped>
 .text-small {
   font-size: 85%;
+}
+
+.dropdown:hover>.dropdown-menu {
+  display: block;
+}
+
+.dropdown>.dropdown-toggle:active {
+  pointer-events: none;
 }
 </style>
