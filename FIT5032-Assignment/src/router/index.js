@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import authState from '@/store';
 // Homw
 import HomeView from '../views/HomeView.vue';
 
@@ -79,6 +80,7 @@ const routes = [
         path: '/knowledge-hub',
         name: 'Knowledge-Hub',
         component: KnowledgeHubView,
+        meta: {requiresAuth: true}
     },
     // Login
     {
@@ -99,5 +101,13 @@ const router = createRouter({
     routes
 })
 
+router.beforeEach((to, from) => {
+    if (to.meta.requiresAuth && !authState.getters.isAuthenticated){
+        return {
+            path: '/login',
+            query: { redirect: to.fullPath },
+        }
+    }
+})
 
 export default router

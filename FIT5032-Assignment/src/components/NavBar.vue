@@ -38,15 +38,13 @@
               </div>
             </li>
             <li>
-              <button class="btn btn-secondary" type="button">
-                  Knowledge Hub
-              </button>
+              <router-link to="/knowledge-hub" class="btn btn-secondary" active-class="active">knowledge Hub</router-link>
             </li>
 
             <!-- Buttons -->
             <div class="text-end">
-              <button type="button" class="btn btn-warning text-dark me-2" href="/about/donate">Donate</button>
-              <button type="button" class="btn btn-primary" href="/">Login</button>
+              <router-link to="/about/donate" class="btn btn-warning text-dark me-2" active-class="active">Donate</router-link>
+              <router-link to="/login" class="btn btn-primary text-dark me-2" active-class="active">Login</router-link>
             </div>
           </ul>
         </div>
