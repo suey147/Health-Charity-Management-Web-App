@@ -1,5 +1,5 @@
 <template>
-    <div class="px-3 py-2 bg-dark text-white">
+    <div class="px-3 py-2 bg-info text-white">
       <div class="container">
         <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
           <!-- logo -->
@@ -11,7 +11,7 @@
           <ul class="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">
             <li>
               <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="aboutUsDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                <button class="btn btn-outline-light me-2 dropdown-toggle" type="button" id="aboutUsDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
                   About us
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="aboutUsDropdownButton">
@@ -24,7 +24,7 @@
             </li>
             <li>
               <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="supportsDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
+                <button class="btn btn-outline-light me-2 dropdown-toggle" type="button" id="supportsDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
                   Supports
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="supportsDropdownButton">
@@ -38,7 +38,7 @@
               </div>
             </li>
             <li>
-              <router-link to="/knowledge-hub" class="btn btn-secondary" active-class="active">knowledge Hub</router-link>
+              <router-link to="/knowledge-hub" class="btn btn-outline-light me-2" active-class="active">knowledge Hub</router-link>
             </li>
 
             <!-- Buttons -->
@@ -59,7 +59,7 @@
   import { useRouter } from 'vue-router';
   const store = useStore();
   const router = useRouter();
-  
+
   const handleLogout = () => {
     store.commit('setAuthenticated', false);
     router.push({ name: 'Home' });
