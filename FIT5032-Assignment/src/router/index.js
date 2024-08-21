@@ -80,7 +80,7 @@ const routes = [
         path: '/knowledge-hub',
         name: 'Knowledge-Hub',
         component: KnowledgeHubView,
-        meta: {requiresAuth: true}
+        meta: {requiresAuth: true, requriesAdmin: true}
     },
     // Login
     {
@@ -102,10 +102,23 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from) => {
-    if (to.meta.requiresAuth && !authState.getters.isAuthenticated){
+    // check authentication
+    const isAuthenticated = authState.getters.isAuthenticated;
+    const userRole = authState.getters.userRole;
+
+    // check if route requires authentication
+    if (to.meta.requiresAuth && !isAuthenticated){
         return {
             path: '/login',
             query: { redirect: to.fullPath },
+        }
+    }
+
+    // check if the route requries admin access
+    if(to.meta.requriesAdmin && userRole !== 'admin'){
+        return {
+            // Todo: redirect to not authorized page
+            path: '/login'
         }
     }
 })
