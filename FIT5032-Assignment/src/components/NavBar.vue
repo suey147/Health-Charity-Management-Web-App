@@ -44,7 +44,8 @@
             <!-- Buttons -->
             <div class="text-end">
               <router-link to="/about/donate" class="btn btn-warning text-dark me-2" active-class="active">Donate</router-link>
-              <router-link to="/login" class="btn btn-primary text-dark me-2" active-class="active">Login</router-link>
+              <router-link v-if="!$store.state.isAuthenticated" to="/login" class="btn btn-primary text-dark me-2" active-class="active">Login</router-link>
+              <router-link v-if="$store.state.isAuthenticated" to="/logout"  @click="handleLogout" class="btn btn-primary text-dark me-2" active-class="active">Logout</router-link>
             </div>
           </ul>
         </div>
@@ -53,8 +54,16 @@
 </template>
 
 <script setup>
-import IconLogo from './icons/IconLogo.vue';
-
+  import IconLogo from './icons/IconLogo.vue';
+  import { useStore} from 'vuex'
+  import { useRouter } from 'vue-router';
+  const store = useStore();
+  const router = useRouter();
+  
+  const handleLogout = () => {
+    store.commit('setAuthenticated', false);
+    router.push({ name: 'Home' });
+  };
 </script>
 
 <style scoped>
