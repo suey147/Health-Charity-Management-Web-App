@@ -15,9 +15,10 @@
                   About us
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="aboutUsDropdownButton">
-                  <li><a class="dropdown-item" href="#">Action</a></li>
-                  <li><a class="dropdown-item" href="#">Another action</a></li>
-                  <li><a class="dropdown-item" href="#">Something else here</a></li>
+                  <li><router-link to="/about/about-us" class="dropdown-item nav-link" active-class="active">About us</router-link></li>
+                  <li><router-link to="/about/contact-us" class="dropdown-item nav-link" active-class="active">Contact us</router-link></li>
+                  <li><router-link to="/about/team" class="dropdown-item nav-link" active-class="active">Our Team</router-link></li>
+                  <li> <router-link to="/about/donate" class="dropdown-item nav-link" active-class="active">Donate</router-link></li>
                 </ul>
               </div>
             </li>
@@ -27,9 +28,12 @@
                   Supports
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="supportsDropdownButton">
-                  <li><a class="dropdown-item" href="#">Action</a></li>
-                  <li><a class="dropdown-item" href="#">Another action</a></li>
-                  <li><a class="dropdown-item" href="#">Something else here</a></li>
+                  <li> <router-link to="/supports/events" class="dropdown-item nav-link" active-class="active">Events</router-link></li>
+                  <li> <router-link to="/supports/forum" class="dropdown-item nav-link" active-class="active">Forums</router-link></li>
+                  <li>
+                    <router-link to="/supports/support-groups" class="dropdown-item nav-link" active-class="active">Support Groups</router-link>
+                  </li>
+                  
                 </ul>
               </div>
             </li>
@@ -41,8 +45,8 @@
 
             <!-- Buttons -->
             <div class="text-end">
-              <button type="button" class="btn btn-warning text-dark me-2">Donate</button>
-              <button type="button" class="btn btn-primary">Login</button>
+              <button type="button" class="btn btn-warning text-dark me-2" href="/about/donate">Donate</button>
+              <button type="button" class="btn btn-primary" href="/">Login</button>
             </div>
           </ul>
         </div>
