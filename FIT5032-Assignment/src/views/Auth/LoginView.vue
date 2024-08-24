@@ -55,8 +55,6 @@ const submitForm = () => {
     if(user){
         store.commit('setAuthenticated', {isAuthenticated: true, user: user});
         const redirect = router.currentRoute.value.query.redirect || { name: 'Home' };
-        console.log(store.state.isAuthenticated)
-        console.log(store.state.details)
         router.push(redirect);
     } else {
         console.log("incorrect");

@@ -80,7 +80,7 @@ const routes = [
         path: '/knowledge-hub',
         name: 'Knowledge-Hub',
         component: KnowledgeHubView,
-        meta: {requiresAuth: true, requriesAdmin: true}
+        // meta: {requiresAuth: true, requriesAdmin: true}
     },
     // Login
     {

@@ -4,3 +4,4 @@ bootstrap==5.3.3
 primevue==4.0.4
 @primevue/themes==4.0.4
 vuex==4.1.0
+bootstrap-icon
