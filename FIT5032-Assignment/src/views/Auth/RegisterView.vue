@@ -1,96 +1,101 @@
 <template>
-    <h1 class="text-center">Register View</h1>
+    <div class="card mx-4 mx-md-5 shadow-5-strong bg-success-subtle" style="backdrop-filter: blur(30px);">
+        <div class="card-body py-5 px-md-5">
+            <h1 class="text-center">Register View</h1>
+            <form @submit.prevent="addUser">
+                <div class="row mb-3">
+                    <div class="col-md-12 col-sm-12 col-12">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" 
+                            @blur="() => validateUserName(true)" 
+                            @input="() => validateUserName(false)"
+                            v-model="formData.username">
+                        <div v-if="errors.username" class="text-danger">{{ errors.username }}</div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6 col-sm-6 col-6">
+                        <label for="fname" class="form-label">First Nname</label>
+                        <input type="text" class="form-control" id="fname" 
+                            @blur="() => validateFName(true)" 
+                            @input="() => validateFName(false)"
+                            v-model="formData.fname">
+                        <div v-if="errors.fname" class="text-danger">{{ errors.fname }}</div>
+                    </div>
 
-    <form @submit.prevent="addUser">
-        <div class="row mb-3">
-            <div class="col-md-12 col-sm-12 col-12">
-                <label for="username" class="form-label">Username</label>
-                <input type="text" class="form-control" id="username" 
-                    @blur="() => validateUserName(true)" 
-                    @input="() => validateUserName(false)"
-                    v-model="formData.username">
-                <div v-if="errors.username" class="text-danger">{{ errors.username }}</div>
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-md-6 col-sm-6 col-6">
-                <label for="fname" class="form-label">First Nname</label>
-                <input type="text" class="form-control" id="fname" 
-                    @blur="() => validateFName(true)" 
-                    @input="() => validateFName(false)"
-                    v-model="formData.fname">
-                <div v-if="errors.fname" class="text-danger">{{ errors.fname }}</div>
-            </div>
+                    <div class="col-md-6 col-sm-6 col-6">
+                        <label for="lname" class="form-label">Last Nname</label>
+                        <input type="text" class="form-control" id="lname" 
+                            @blur="() => validateLName(true)" 
+                            @input="() => validateLName(false)"
+                            v-model="formData.lname">
+                        <div v-if="errors.lname" class="text-danger">{{ errors.lname }}</div>
+                    </div>
+                </div>
 
-            <div class="col-md-6 col-sm-6 col-6">
-                <label for="lname" class="form-label">Last Nname</label>
-                <input type="text" class="form-control" id="lname" 
-                    @blur="() => validateLName(true)" 
-                    @input="() => validateLName(false)"
-                    v-model="formData.lname">
-                <div v-if="errors.lname" class="text-danger">{{ errors.lname }}</div>
-            </div>
-        </div>
+                <div class="row mb-3">
+                    <div class="col-md-12 col-sm-12 col-12">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" 
+                            @blur="() => validateEmail(true)" 
+                            @input="() => validateEmail(false)"
+                            v-model="formData.email">
+                        <div v-if="errors.email" class="text-danger">{{ errors.email }}</div>
+                    </div>
+                </div>
+                <!-- password and confirm password -->
+                <div class="row mb-3">
+                    <div class="col-md-12 col-sm-12 col-12">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" 
+                            @blur="() => validatePassword(true)" 
+                            @input="() => validatePassword(false)"
+                            v-model="formData.password">
+                        <div v-if="errors.password" class="text-danger">{{ errors.password }}</div>
+                    </div>
+                </div>
 
-        <div class="row mb-3">
-            <div class="col-md-12 col-sm-12 col-12">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" class="form-control" id="email" 
-                    @blur="() => validateEmail(true)" 
-                    @input="() => validateEmail(false)"
-                    v-model="formData.email">
-                <div v-if="errors.email" class="text-danger">{{ errors.email }}</div>
-            </div>
-        </div>
-        <!-- password and confirm password -->
-        <div class="row mb-3">
-            <div class="col-md-12 col-sm-12 col-12">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" 
-                    @blur="() => validatePassword(true)" 
-                    @input="() => validatePassword(false)"
-                    v-model="formData.password">
-                <div v-if="errors.password" class="text-danger">{{ errors.password }}</div>
-            </div>
-        </div>
+                <div class="row mb-3">
+                    <div class="col-md-12 col-sm-12 col-12">
+                        <label for="confirm-password" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="confirm-password" 
+                            @blur="() => validateConfirmPassword(true)" 
+                            @input="() => validateConfirmPassword(false)" v-model="confirmPassword">
+                        <div v-if="errors.confirmPassword" class="text-danger">{{ errors.confirmPassword }}</div>
+                    </div>
+                </div>
 
-        <div class="row mb-3">
-            <div class="col-md-12 col-sm-12 col-12">
-                <label for="confirm-password" class="form-label">Confirm Password</label>
-                <input type="password" class="form-control" id="confirm-password" 
-                    @blur="() => validateConfirmPassword(true)" 
-                    @input="() => validateConfirmPassword(false)" v-model="confirmPassword">
-                <div v-if="errors.confirmPassword" class="text-danger">{{ errors.confirmPassword }}</div>
-            </div>
+                <div class="col-md-12 col-sm-12 col-12 mb-3">
+                        <label class="form-label" for="role">Role</label>
+                        <select class="form-select" id="role" 
+                            @blur="() => validateRole(true)" 
+                            @input="() => validateRole(false)"
+                            v-model="formData.role">
+                            <option value="user">Participant</option>
+                            <option value="user">Volunteer</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                        <div v-if="errors.role" class="text-danger">{{ errors.role }}</div>
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="btn btn-primary me-2">Submit</button>
+                    <!-- <button type="button" class="btn btn-secondary" @click="clearForm">Clear</button> -->
+                </div>
+            </form>
         </div>
-
-        <div class="col-md-12 col-sm-12 col-12 mb-3">
-                <label class="form-label" for="role">Role</label>
-                <select class="form-select" id="role" 
-                    @blur="() => validateRole(true)" 
-                    @input="() => validateRole(false)"
-                    v-model="formData.role">
-                    <option value="user">Participant</option>
-                    <option value="user">Volunteer</option>
-                    <option value="admin">Admin</option>
-                </select>
-                <div v-if="errors.role" class="text-danger">{{ errors.role }}</div>
-        </div>
-        <div class="text-center">
-            <button type="submit" class="btn btn-primary me-2">Submit</button>
-            <!-- <button type="button" class="btn btn-secondary" @click="clearForm">Clear</button> -->
-        </div>
-    </form>
+    </div>
 </template>
 
 <script setup>
     import { ref } from "vue";
-
+    import { useRouter } from 'vue-router';
+    const router = useRouter();
+    
     const formData = ref({
         username: '',
         lname: '',
         fname: '',
-        password: '',
+        password: '', 
         role: '',
         email: ''
     });
@@ -109,6 +114,7 @@
             ...formData.value
             });
             localStorage.setItem('Users', JSON.stringify(users));
+            router.currentRoute.value.query.redirect || { name: 'Home' };
         }
     };
 

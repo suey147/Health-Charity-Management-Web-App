@@ -42,10 +42,17 @@
             </li>
 
             <!-- Buttons -->
-            <div class="text-end">
+            <div class="text-end d-flex align-items-center">
               <router-link to="/about/donate" class="btn btn-warning text-dark me-2" active-class="active">Donate</router-link>
               <router-link v-if="!$store.state.isAuthenticated" to="/login" class="btn btn-primary text-dark me-2" active-class="active">Login</router-link>
-              <router-link v-if="$store.state.isAuthenticated" to="/logout"  @click="handleLogout" class="btn btn-primary text-dark me-2" active-class="active">Logout</router-link>
+              <div class="dropdown" v-if="$store.state.isAuthenticated">
+                <a class="me-2 dropdown-toggle" id="userDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">{{user.username}}</a>
+                <ul class="dropdown-menu" aria-labelledby="userDropdownButton">
+                  <li> <router-link to="/supports/events" class="dropdown-item nav-link" active-class="active">Events</router-link></li>
+                  <li><router-link  to="/logout"  @click="handleLogout" class="btn btn-primary text-dark me-2" active-class="active">Logout</router-link></li>
+                </ul>
+              </div>
+            
             </div>
           </ul>
         </div>
@@ -64,6 +71,8 @@
     store.commit('setAuthenticated', false);
     router.push({ name: 'Home' });
   };
+
+  const user = store.state.details;
 </script>
 
 <style scoped>
