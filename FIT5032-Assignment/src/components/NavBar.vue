@@ -44,8 +44,8 @@
             <!-- Buttons -->
             <div class="text-end d-flex align-items-center">
               <router-link to="/about/donate" class="btn btn-warning text-dark me-2" active-class="active">Donate</router-link>
-              <router-link v-if="!$store.state.isAuthenticated" to="/login" class="btn btn-primary text-dark me-2" active-class="active">Login</router-link>
-              <div class="dropdown" v-if="$store.state.isAuthenticated">
+              <router-link v-if="!$store.getters.isAuthenticated" to="/login" class="btn btn-primary text-dark me-2" active-class="active">Login</router-link>
+              <div class="dropdown" v-if="$store.getters.isAuthenticated">
                 <a class="me-2 dropdown-toggle" id="userDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">{{user.username}}</a>
                 <ul class="dropdown-menu" aria-labelledby="userDropdownButton">
                   <li> <router-link to="/supports/events" class="dropdown-item nav-link" active-class="active">Events</router-link></li>
@@ -62,8 +62,9 @@
 
 <script setup>
   import IconLogo from './icons/IconLogo.vue';
-  import { useStore} from 'vuex'
+  import { useStore } from 'vuex';
   import { useRouter } from 'vue-router';
+  import { computed } from 'vue';
   const store = useStore();
   const router = useRouter();
 
@@ -72,7 +73,10 @@
     router.push({ name: 'Home' });
   };
 
-  const user = store.state.details;
+  // automatically update when their dependencies change
+  const user = computed(() => {
+    return store.getters.userDetails
+  })
 </script>
 
 <style scoped>
