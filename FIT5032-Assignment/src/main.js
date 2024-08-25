@@ -8,7 +8,8 @@ import App from './App.vue'
 import PrimeVue from 'primevue/config';
 import Aura from '@primevue/themes/aura';
 import store from './store'
-
+import { VueFire } from 'vuefire'
+import { firebaseApp } from '../firebase'
 const app = createApp(App);
 
 app.use(PrimeVue, {
@@ -18,4 +19,7 @@ app.use(PrimeVue, {
 });
 app.use(router)
 app.use(store)
+app.use(VueFire, {
+    firebaseApp,
+})
 app.mount('#app')
