@@ -13,11 +13,12 @@ import OurTeamView from '@/views/About/OurTeamView.vue';
 import ForumView from '@/views/Supports/ForumView.vue';
 import SupportGroupView from '@/views/Supports/SupportGroupView.vue';
 import EventView from '@/views/Supports/EventView.vue';
-import KnowledgeHubView from '@/views/KnowledgeHubView.vue';
 import LoginView from '@/views/Auth/LoginView.vue';
 import RegisterView from '@/views/Auth/RegisterView.vue';
 
-
+// KnowledgeHub
+import DocumentView from '@/views/knowledgeHub/DocumentView.vue';
+import KnowledgeHubView from '@/views/knowledgeHub/KnowledgeHubView.vue';
 // create routes
 const routes = [
     // Home section
@@ -80,6 +81,12 @@ const routes = [
         path: '/knowledge-hub',
         name: 'Knowledge-Hub',
         component: KnowledgeHubView,
+        // meta: {requiresAuth: true, requriesAdmin: true}
+    },
+    {
+        path: '/knowledge-hub/document/:id',
+        name: 'DocumentPage',
+        component: DocumentView,
         // meta: {requiresAuth: true, requriesAdmin: true}
     },
     // Login

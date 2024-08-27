@@ -25,16 +25,11 @@
             </button>
         </div>
     </form>
+    <KnowledgeHubTable/>
 </template>
 
 <script setup>
-    import { getDocs } from "firebase/firestore"; 
-    import { knowledgeHubDBRef } from "@/firebase";
-
-    const querySnapshot = await getDocs(knowledgeHubDBRef);
-        querySnapshot.forEach((doc) => {
-        console.log(`${doc.id} => ${doc.data().Name}`);
-    });
+    import KnowledgeHubTable from './KnowledgeHubTable.vue';
 
 </script>
 
