@@ -28,7 +28,13 @@
 </template>
 
 <script setup>
-    import { ref } from "vue";
+    import { getDocs } from "firebase/firestore"; 
+    import { knowledgeHubDBRef } from "@/firebase";
+
+    const querySnapshot = await getDocs(knowledgeHubDBRef);
+        querySnapshot.forEach((doc) => {
+        console.log(`${doc.id} => ${doc.data().Name}`);
+    });
 
 </script>
 
