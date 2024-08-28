@@ -18,7 +18,7 @@ import RegisterView from '@/views/Auth/RegisterView.vue';
 
 // KnowledgeHub
 import DocumentView from '@/views/knowledgeHub/DocumentView.vue';
-import KnowledgeHubView from '@/views/knowledgeHub/KnowledgeHubView.vue';
+import KnowledgeHubView from '@/views/knowledgeHub/KHView.vue';
 // create routes
 const routes = [
     // Home section
