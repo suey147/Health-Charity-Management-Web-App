@@ -13,7 +13,7 @@
 
             <template #expansion="slotProps">
                 <div class="p-4">
-                    <DataTable :value="slotProps.data.documents" @row-click="onRowClick">
+                    <DataTable :value="slotProps.data.documents" @rowClick="onRowClick">
                         <Column field="id" header="Id" sortable></Column>
                         <Column field="title" header="Title" sortable></Column>
                         <Column field="date" header="Date" sortable></Column>

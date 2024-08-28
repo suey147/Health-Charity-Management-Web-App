@@ -87,6 +87,7 @@ const routes = [
         path: '/knowledge-hub/document/:id',
         name: 'DocumentPage',
         component: DocumentView,
+        props: true,
         // meta: {requiresAuth: true, requriesAdmin: true}
     },
     // Login

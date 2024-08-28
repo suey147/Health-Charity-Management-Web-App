@@ -1,31 +1,26 @@
 <template>
     <div>
-        <h1>Document: {{ selectedDocument.title }}</h1>
-        <p>Category: {{ selectedDocument.category }}</p>
-        <p>Description: {{ selectedDocument.description }}</p>
-        <button @click="goBack">Back to Knowledge Hub</button>
+            <h1>{{ selectedDocument.title }}</h1>
+            <p>Date: {{ selectedDocument.date }}</p>
+            <p>content: {{ selectedDocument.content }}</p>
+            <button @click="goBack">Back to Knowledge Hub</button>
+
     </div>
 </template>
 
 <script setup>
     import { knowledgeHub } from '@/assets/knowledgeHub/school';
-    import { ref, onMounted, defineProps } from 'vue';
+    import { computed } from 'vue';
+    import { useRoute } from 'vue-router';
 
-    const props = defineProps({
-        docId: {
-        type: String,
-        required: true}
+    const route = useRoute();
+    const docId = route.params.id;
+
+    const categories = knowledgeHub.getKnowledge();
+
+    const selectedDocument = computed(() => {
+        return categories.flatMap(category => category.documents).find(doc => doc.id === docId);
     })
-    const selectedDocument = ref(null);
-    onMounted(() => {
-        const categories = knowledgeHub.getKnowledge()
-        for (const category of categories)
-        {
-            const document = category.find(doc => doc.id === props.docId)
-            if (document){
-                selectedDocument.value = document;
-                break
-            }
-        }
-    })
+
+
 </script>
