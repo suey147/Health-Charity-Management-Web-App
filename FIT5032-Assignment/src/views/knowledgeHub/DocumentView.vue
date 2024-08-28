@@ -11,8 +11,9 @@
 <script setup>
     import { knowledgeHub } from '@/assets/knowledgeHub/school';
     import { computed } from 'vue';
-    import { useRoute } from 'vue-router';
+    import { useRoute, useRouter } from 'vue-router';
 
+    const router = useRouter();
     const route = useRoute();
     const docId = route.params.id;
 
@@ -22,5 +23,9 @@
         return categories.flatMap(category => category.documents).find(doc => doc.id === docId);
     })
 
+    const goBack = () => {
+        const redirect = { name: 'Knowledgehub' };
+        router.push(redirect);
+    }
 
 </script>
