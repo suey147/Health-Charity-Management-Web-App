@@ -12,6 +12,7 @@ import Aura from '@primevue/themes/aura';
 import store from './store'
 import firebaseApp from './firebase'
 import { VueFire, VueFireAuth } from 'vuefire'
+import DialogService from 'primevue/dialogservice'
 
 const app = createApp(App);
 
@@ -21,12 +22,13 @@ app.use(PrimeVue, {
     }
 });
 app.use(ToastService);
-app.use(router)
-app.use(store)
+app.use(router);
+app.use(store);
+app.use(DialogService);
 app.use(VueFire, {
     firebaseApp,
     modules: [
         VueFireAuth(),
     ],
-})
+});
 app.mount('#app')

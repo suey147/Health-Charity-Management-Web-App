@@ -9,7 +9,7 @@
                     <Button class="btn-light btn bi bi-dash" @click="collapseAll">Collapse All</Button>
                 </div>
             </template>
-            
+
             <template>
                 <Column field="title" header="Category" class="bg-info" ></Column>
                 <Column expander style="width: 3rem" class="bg-info"/>
@@ -41,7 +41,7 @@
 <script setup>
     import { ref, onMounted, computed} from 'vue';
     import { useToast } from 'primevue/usetoast';
-    import { knowledgeHub } from '../../assets/knowledgeHub/school.js';
+    import { knowledgeHub } from '../../assets/knowledgeHub/documents.js';
     import DataTable from "primevue/datatable";
     import Column from "primevue/column";
     import router from '@/router/index.js';

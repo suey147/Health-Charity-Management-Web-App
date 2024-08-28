@@ -44,7 +44,7 @@
 </template>
 
 <script setup>
-    import { knowledgeHub } from '@/assets/knowledgeHub/school';
+    import { knowledgeHub } from '@/assets/knowledgeHub/documents';
     import RatingForm from '@/components/RatingForm.vue';
     import { computed } from 'vue';
     import { useRoute, useRouter } from 'vue-router';

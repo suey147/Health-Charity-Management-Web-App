@@ -76,7 +76,7 @@ export const knowledgeHub = {
                     category: 'Understanding',
                     documents: [
                         {
-                            id: 'school1',
+                            id: 'school2',
                             subCategory: 'Early childhood',
                             title: "Supporting Mental Health in Early Childhood: A Foundation for Lifelong Well-being",
                             date: '2020-09-13',

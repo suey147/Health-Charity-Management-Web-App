@@ -19,6 +19,7 @@ import RegisterView from '@/views/Auth/RegisterView.vue';
 // KnowledgeHub
 import DocumentView from '@/views/knowledgeHub/DocumentView.vue';
 import KnowledgeHubView from '@/views/knowledgeHub/KHView.vue';
+import EditKnowledgeHub from '@/views/knowledgeHub/KHEdit.vue';
 // create routes
 const routes = [
     // Home section
@@ -81,14 +82,18 @@ const routes = [
         path: '/knowledge-hub',
         name: 'Knowledgehub',
         component: KnowledgeHubView,
-        // meta: {requiresAuth: true, requriesAdmin: true}
     },
     {
         path: '/knowledge-hub/document/:id',
         name: 'DocumentPage',
         component: DocumentView,
         props: true,
-        // meta: {requiresAuth: true, requriesAdmin: true}
+        meta: {requiresAuth: true, requriesAdmin: true}
+    },
+    {
+        path: '/knowledge-hub/edit',
+        name: 'EditKnowledgeHub',
+        component: EditKnowledgeHub,
     },
     // Login
     {
