@@ -31,14 +31,21 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'Hello from Express!' });
 });
 
-app.get('/login', async (req, res) => {
-    // const { username, password } = req.body;
+app.post('/login', async (req, res) => {
+    const username = req.body.username;
+    const password  = req.body.password;
     try {
         const doc = await db.collection('Users').get();
         doc.forEach((doc) => {
-            console.log(doc.id, '=>', doc.data());
+            if (doc.data().username == username && doc.data().password == password)
+            {
+                res.json({message: "Login successful", user: doc.data()});
+            }
+            else{
+                res.json({message: "Incorrect user name or password"});
+            }
         });
-        res.json({message: "Login successful"});
+        
       } catch (error) {
         res.status(500).json({ error: 'Error logging in' });
       }

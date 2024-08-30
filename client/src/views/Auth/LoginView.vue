@@ -49,7 +49,6 @@ const formData = ref({
 const submitForm = async () => {
     try{
         const {username, password} = formData.value;
-        const {token, user} = await login(username, password);
 
         if (user) {
         store.commit('setAuthenticated', { isAuthenticated: true, user: user });
@@ -67,8 +66,16 @@ const submitForm = async () => {
 
 const handleSubmit = async () => {
     try {
-        const response = await axios.get('http://localhost:5000/login');
-        console.log(response.data.message);
+        const {username, password} = formData.value;
+        const response = await axios.post('http://localhost:5000/login', { username: username, password: password});
+        const message = response.data.message;
+        console.log(message);
+        if (response.data.user) {
+            store.commit('setAuthenticated', { isAuthenticated: true, user: response.data.user });
+            const redirect = router.currentRoute.value.query.redirect || { name: 'Home' };
+            router.push(redirect);
+        }
+        
     } catch (error) {
         console.log('Error' + error.message);
     }
