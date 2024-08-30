@@ -22,6 +22,7 @@ const authState = createStore({
         isAuthenticated(state){return state.isAuthenticated},
         userRole(state){return state.role},
         userDetails(state){return state.details},
+        isAdmin(state){return state.role == 'admin'}
     }
 });
 

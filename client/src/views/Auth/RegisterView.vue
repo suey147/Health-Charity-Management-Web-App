@@ -89,6 +89,7 @@
 <script setup>
     import { ref } from "vue";
     import { useRouter } from 'vue-router';
+    import axios from 'axios'
     const router = useRouter();
     
     const formData = ref({
@@ -112,18 +113,26 @@
         if(Object.values(errors.value).some(error => error !== null)){
             try {
                 const userData = {...formData.value};
-
-                const registeredUser = await register(userData);
-
-                const redirect = router.currentRoute.value.query.redirect || { name: 'Home' };
-                router.push(redirect);
+                handleRegister(userData);
             }
              catch (error) {
                 console.error("Registration error:", error.response ? error.response.data : error.message);
             }
         }
     };
+    const handleRegister = async (userData) => {
+        try {
+            const response = await axios.post('http://localhost:5000/register', userData);
+            const message = response.data.message;
 
+            if (message == 'successful') {
+                const redirect = router.currentRoute.value.query.redirect || { name: 'Home' };
+                router.push(redirect);
+            }
+        } catch (error) {
+            console.log('Error' + error.message);
+        }
+    };
     const errors = ref({
         username: null,
         password: null,

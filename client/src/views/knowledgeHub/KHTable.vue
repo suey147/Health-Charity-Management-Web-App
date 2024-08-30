@@ -7,6 +7,7 @@
                 <div class="flex flex-wrap justify-end gap-2 text-end">
                     <button class="btn-light btn bi bi-plus" @click="expandAll">Expand All</button>
                     <button class="btn-light btn bi bi-dash" @click="collapseAll">Collapse All</button>
+                    <RouterLink class="btn-light btn bi bi-gear" v-if="$store.getters.isAdmin" to="/knowledge-hub/edit"> Edit</RouterLink>
                 </div>
             </template>
 

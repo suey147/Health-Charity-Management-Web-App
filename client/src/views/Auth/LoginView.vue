@@ -24,7 +24,7 @@
                 <div class="text-center">
                     <button type="submit" class="btn btn-primary me-2">Submit</button>
                     <div>
-                        <p class="mb-0">Don't have an account? <router-link to="/register" class="text-black me-2" active-class="active">Register</router-link>
+                        <p class="mb-0">Don't have an account? <router-link :to="{ path: '/register', query: { redirect: '/login'} }" class="text-black me-2" active-class="active">Register</router-link>
                         </p>
                     </div>
                 </div>
@@ -46,24 +46,6 @@ const formData = ref({
     password: ''
 });
 
-const submitForm = async () => {
-    try{
-        const {username, password} = formData.value;
-
-        if (user) {
-        store.commit('setAuthenticated', { isAuthenticated: true, user: user });
-        const redirect = router.currentRoute.value.query.redirect || { name: 'Home' };
-        router.push(redirect);
-        } else {
-        console.log("Login failed");
-        }
-    } catch (error) {
-        console.error("Login error:", error.response ? error.response.data : error.message);
-    }
-};
-
-
-
 const handleSubmit = async () => {
     try {
         const {username, password} = formData.value;
@@ -75,7 +57,6 @@ const handleSubmit = async () => {
             const redirect = router.currentRoute.value.query.redirect || { name: 'Home' };
             router.push(redirect);
         }
-        
     } catch (error) {
         console.log('Error' + error.message);
     }

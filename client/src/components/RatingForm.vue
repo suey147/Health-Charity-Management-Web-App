@@ -21,16 +21,6 @@
             
           </div>
         </div>
-        <!-- <div class="form-group mt-3">
-          <label for="comments">Comments</label>
-          <textarea
-            id="comments"
-            class="form-control"
-            v-model="comments"
-            rows="3"
-            placeholder="Leave your comments here..."
-          ></textarea>
-        </div> -->
         <button type="submit" class="btn btn-primary mt-3">Submit</button>
       </form>
     </div>
@@ -40,10 +30,9 @@
     import { ref } from 'vue';
     import { defineProps } from 'vue';
     const props = defineProps({
-        initialRating: {
-            type: Number,
-            default: 0,
-        }
+      initialRating: {
+          type: String,
+      }
     })
     const stars = ref([1, 2, 3, 4, 5]);
     const currentRating = ref(0);

@@ -39,10 +39,7 @@ app.post('/login', async (req, res) => {
         doc.forEach((doc) => {
             if (doc.data().username == username && doc.data().password == password)
             {
-                res.json({message: "Login successful", user: doc.data()});
-            }
-            else{
-                res.json({message: "Incorrect user name or password"});
+              res.status(200).json({message: "Login successful", user: doc.data()});
             }
         });
         
@@ -51,6 +48,16 @@ app.post('/login', async (req, res) => {
       }
 });
 
+app.post('/register', async (req, res) => {
+
+    try {
+        const response = await db.collection('Users').doc().set(req.body);
+        console.log(response)
+        res.status(200).json({ message: 'successful' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error registering user' });
+    }
+});
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

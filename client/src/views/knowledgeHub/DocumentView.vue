@@ -47,11 +47,13 @@
     import { knowledgeHub } from '@/assets/knowledgeHub/documents';
     import RatingForm from '@/components/RatingForm.vue';
     import { computed } from 'vue';
-    import { useRoute, useRouter } from 'vue-router';
-    import { ref } from 'vue';
-    
-
-    const router = useRouter();
+    import { useRoute } from 'vue-router';
+    import { defineProps } from 'vue';
+    const props = defineProps({
+      id: {
+          type: String,
+      }
+    })
     const route = useRoute();
     const docId = route.params.id;
 
@@ -60,11 +62,4 @@
     const selectedDocument = computed(() => {
         return categories.flatMap(category => category.documents).find(doc => doc.id === docId);
     })
-
-    const goBack = () => {
-        const redirect = { name: 'Knowledgehub' };
-        router.push(redirect);
-    }
-
-    const value = ref(null)
 </script>

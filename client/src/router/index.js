@@ -19,8 +19,11 @@ import RegisterView from '@/views/Auth/RegisterView.vue';
 // KnowledgeHub
 import DocumentView from '@/views/knowledgeHub/DocumentView.vue';
 import KnowledgeHubView from '@/views/knowledgeHub/KHView.vue';
-import EditKnowledgeHub from '@/views/knowledgeHub/KHEdit.vue';
-import AccessRequired from '@/views/knowledgeHub/AccessRequired.vue';
+import EditKnowledgeHub from '@/views/knowledgeHub/edit/KHEdit.vue';
+import AccessRequired from '@/views/knowledgeHub/edit/AccessRequired.vue';
+
+import AdminRequiredView from '@/views/AdminRequiredView.vue';
+
 // create routes
 const routes = [
     // Home section
@@ -95,6 +98,7 @@ const routes = [
         path: '/knowledge-hub/edit',
         name: 'EditKnowledgeHub',
         component: EditKnowledgeHub,
+        meta: {requiresAuth: true, requriesAdmin: true}
     },
     {
         path: '/knowledge-hub/access-required',
@@ -113,6 +117,11 @@ const routes = [
         name: 'Register',
         component: RegisterView,
     },
+    {
+        path: '/admin-required',
+        name: 'AdminRequired',
+        component: AdminRequiredView,
+    },
 ]
 
 const router = createRouter({
@@ -126,7 +135,9 @@ router.beforeEach((to, from) => {
     const userRole = authState.getters.userRole;
 
     // check if route requires authentication
+    console.log(isAuthenticated)
     if (to.meta.requiresAuth && !isAuthenticated){
+        console.log("login required")
         if (to.path.startsWith('/knowledge-hub/document'))
         {
             return {
@@ -142,9 +153,9 @@ router.beforeEach((to, from) => {
 
     // check if the route requries admin access
     if(to.meta.requriesAdmin && userRole !== 'admin'){
+        console.log("Admin required")
         return {
-            // Todo: redirect to not authorized page
-            path: '/login'
+            path: '/admin-required'
         }
     }
 })
