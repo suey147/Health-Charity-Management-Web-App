@@ -37,6 +37,7 @@
 import { ref } from "vue";
 import { useStore} from 'vuex'
 import { useRouter } from 'vue-router';
+import { login } from "./authService";
 const router = useRouter();
 const store = useStore();
 
@@ -45,19 +46,20 @@ const formData = ref({
     password: ''
 });
 
-const submitForm = () => {
-    // WHERE SHOULD WE STORE THE USER DATA AS LOCAL STORAGE IS NOT A GOOD APPROACH
-    const allUsers = JSON.parse(localStorage.getItem('Users'));
+const submitForm = async () => {
+    try{
+        const {username, password} = formData.value;
+        const {token, user} = await login(username, password);
 
-    let user = null;
-    user = allUsers._value.find(user => (user.username === formData.value.username && user.password === formData.value.password));
-
-    if(user){
-        store.commit('setAuthenticated', {isAuthenticated: true, user: user});
+        if (user) {
+        store.commit('setAuthenticated', { isAuthenticated: true, user: user });
         const redirect = router.currentRoute.value.query.redirect || { name: 'Home' };
         router.push(redirect);
-    } else {
-        console.log("incorrect");
+        } else {
+        console.log("Login failed");
+        }
+    } catch (error) {
+        console.error("Login error:", error.response ? error.response.data : error.message);
     }
 };
 </script>

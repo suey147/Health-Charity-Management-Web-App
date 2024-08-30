@@ -89,6 +89,7 @@
 <script setup>
     import { ref } from "vue";
     import { useRouter } from 'vue-router';
+import { register } from "./authService";
     const router = useRouter();
     
     const formData = ref({
@@ -102,7 +103,7 @@
 
     const users = ref([]);
 
-    const addUser = () => {
+    const addUser = async () => {
         validateUserName(true);
         validatePassword(true);
         validateRole(true);
@@ -110,11 +111,17 @@
         validateFName(true);
         validateLName(true);
         if(Object.values(errors.value).some(error => error !== null)){
-            users.value.push({
-            ...formData.value
-            });
-            localStorage.setItem('Users', JSON.stringify(users));
-            router.currentRoute.value.query.redirect || { name: 'Home' };
+            try {
+                const userData = {...formData.value};
+
+                const registeredUser = await register(userData);
+
+                const redirect = router.currentRoute.value.query.redirect || { name: 'Home' };
+                router.push(redirect);
+            }
+             catch (error) {
+                console.error("Registration error:", error.response ? error.response.data : error.message);
+            }
         }
     };
 

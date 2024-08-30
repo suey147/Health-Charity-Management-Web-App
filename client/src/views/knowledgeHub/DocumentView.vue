@@ -34,7 +34,7 @@
                 </div>
                 </div>
 
-                <h3>{{ selectedDocument.content.conclusion }}</h3>
+                <h3>{{ selectedDocument.content.conclusion.content }}</h3>
             </section>
           </article>
         </div>

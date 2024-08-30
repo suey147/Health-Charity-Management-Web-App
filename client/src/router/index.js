@@ -20,6 +20,7 @@ import RegisterView from '@/views/Auth/RegisterView.vue';
 import DocumentView from '@/views/knowledgeHub/DocumentView.vue';
 import KnowledgeHubView from '@/views/knowledgeHub/KHView.vue';
 import EditKnowledgeHub from '@/views/knowledgeHub/KHEdit.vue';
+import AccessRequired from '@/views/knowledgeHub/AccessRequired.vue';
 // create routes
 const routes = [
     // Home section
@@ -88,12 +89,17 @@ const routes = [
         name: 'DocumentPage',
         component: DocumentView,
         props: true,
-        meta: {requiresAuth: true, requriesAdmin: true}
+        meta: {requiresAuth: true, requriesAdmin: false}
     },
     {
         path: '/knowledge-hub/edit',
         name: 'EditKnowledgeHub',
         component: EditKnowledgeHub,
+    },
+    {
+        path: '/knowledge-hub/access-required',
+        name: 'KHAccessRequired',
+        component: AccessRequired,
     },
     // Login
     {
@@ -121,6 +127,13 @@ router.beforeEach((to, from) => {
 
     // check if route requires authentication
     if (to.meta.requiresAuth && !isAuthenticated){
+        if (to.path.startsWith('/knowledge-hub/document'))
+        {
+            return {
+                path: '/knowledge-hub/access-required',
+                query: { redirect: to.fullPath },
+            }
+        }
         return {
             path: '/login',
             query: { redirect: to.fullPath },

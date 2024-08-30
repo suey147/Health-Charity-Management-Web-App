@@ -1,9 +1,7 @@
 <template>
-
-    <button class="btn btn-success bi bi-plus mr-2" severity="success" @click="openNew">New</button>
-    <button class="btn btn-danger bi bi-trash" severity="danger" @click="confirmDeleteSelected">Delete</button>
-
-
+    <div class="flex flex-wrap justify-end gap-2 text-end">
+        <button class="btn btn-success bi bi-plus mr-2" severity="success" @click="openNew">New</button>
+    </div>
     <DataTable v-model:selection="selectedDocuments" :value="docs" @rowClick="onRowClick">
         <!-- <Column selectionMode="multiple" style="width: 3rem"></Column> -->
         <Column field="id" header="Id" sortable></Column>

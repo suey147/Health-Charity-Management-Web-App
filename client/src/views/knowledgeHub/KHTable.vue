@@ -5,8 +5,8 @@
                 @rowExpand="onRowExpand" @rowCollapse="onRowCollapse" v-if="!isSearching">
             <template #header>
                 <div class="flex flex-wrap justify-end gap-2 text-end">
-                    <Button class="btn-light btn bi bi-plus" @click="expandAll">Expand All</Button>
-                    <Button class="btn-light btn bi bi-dash" @click="collapseAll">Collapse All</Button>
+                    <button class="btn-light btn bi bi-plus" @click="expandAll">Expand All</button>
+                    <button class="btn-light btn bi bi-dash" @click="collapseAll">Collapse All</button>
                 </div>
             </template>
 
@@ -32,9 +32,6 @@
             <Column field="date" header="Date" sortable></Column>
             <Column field="rating" header="Reviews"></Column>
         </DataTable>
-
-        <!--Took Row Expansion example from PrimeVue as example-->
-        <Toast />
 
 </template>
 

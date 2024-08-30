@@ -26,9 +26,6 @@ app.use(router);
 app.use(store);
 app.use(DialogService);
 app.use(VueFire, {
-    firebaseApp,
-    modules: [
-        VueFireAuth(),
-    ],
+    firebaseApp
 });
 app.mount('#app')
