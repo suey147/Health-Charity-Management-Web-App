@@ -4,7 +4,7 @@
         backdrop-filter: blur(30px);
         ">
         <div class="card-body py-5 px-md-5">
-            <form @submit.prevent="submitForm">
+            <form @submit.prevent="handleSubmit">
                 <!-- Username -->
                 <div class="row mb-3">
                     <div class="col-md-12 col-sm-12 col-12">
@@ -37,7 +37,7 @@
 import { ref } from "vue";
 import { useStore} from 'vuex'
 import { useRouter } from 'vue-router';
-import { login } from "./authService";
+import axios from 'axios'
 const router = useRouter();
 const store = useStore();
 
@@ -62,6 +62,18 @@ const submitForm = async () => {
         console.error("Login error:", error.response ? error.response.data : error.message);
     }
 };
+
+
+
+const handleSubmit = async () => {
+    try {
+        const response = await axios.get('http://localhost:5000/login');
+        console.log(response.data.message);
+    } catch (error) {
+        console.log('Error' + error.message);
+    }
+};
+
 </script>
 
 <style>

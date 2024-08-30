@@ -89,7 +89,6 @@
 <script setup>
     import { ref } from "vue";
     import { useRouter } from 'vue-router';
-import { register } from "./authService";
     const router = useRouter();
     
     const formData = ref({
