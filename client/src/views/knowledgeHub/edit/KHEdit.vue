@@ -27,7 +27,7 @@
             <div class="flex flex-col gap-6">
                 <div class="mb-3">
                     <label for="title" class="block font-bold mb-3 form-label">Title</label>
-                    <input type="text" id="title" class="form-control" v-model.trim="newDocument.name" required="true" autofocus fluid>
+                    <input type="text" id="title" class="form-control" v-model.trim="newDocument.title" required="true" autofocus fluid>
                 </div>
 
                 <!-- Author -->
@@ -41,12 +41,6 @@
                     <label for="publishedDate" class="block font-bold mb-3 form-label">Published Date:</label>
                     <input type="date" id="title" class="form-control" v-model="newDocument.publishedDate" />
                 </div>
-
-                <!-- Tags -->
-                <!-- <div>
-                    <label for="tags" class="block font-bold mb-3 form-label">Tags (comma-separated):</label>
-                    <input type="text" id="title" class="form-control" v-model="tagsInput" @change="handleTagsChange" />
-                </div> -->
 
                 <div class="mb-3">
                     <label for="content" class="block font-bold mb-3 form-label">Content</label>
@@ -64,7 +58,7 @@
             </div>
             <div>
                 <button class="bi bi-times btn btn-light" text @click="hideDialog">Cancel</button>
-                <button class="bi bi-check btn btn-primary" @click="saveDocuments">Save</button>
+                <button class="bi bi-check btn btn-primary" @click="saveDocuments()">Save</button>
             </div>
         </form>
     </Dialog>
@@ -93,7 +87,16 @@ import Toast from 'primevue/toast';
 import { FilterMatchMode } from "@primevue/core/api"
 import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
+import DOMPurify from 'dompurify';
+import axios from 'axios'
 
+const newDocument = ref({
+    title: '',
+    author: '',
+    publishedDate: '',
+    content: '',
+    selectedCategory: ''
+});
 const toast = useToast();
 // all documents in the database
 const docs = ref();
@@ -150,16 +153,21 @@ const filters = ref({
         'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
 });
 
-const newDocument = ref({
-    title: '',
-    author: '',
-    publishedDate: '',
-    content: '',
-    selectedCategory: ''
-});
 const handleAddNew = () => {
     console.log(JSON.stringify(newDocument.value.content.ops, null, 2))
     console.log(newDocument.value)
+}
+
+const saveDocuments = async () => {
+    console.log(DOMPurify.sanitize(newDocument.value.content))
+    newDocument.value.content = DOMPurify.sanitize(newDocument.value.content);
+    try {
+            const response = await axios.post('http://localhost:5000/addDocument', newDocument.value);
+            const message = response.data.message;
+            console.log(message);
+        } catch (error) {
+            console.log('Error' + error.message);
+        }
 }
 </script>
 

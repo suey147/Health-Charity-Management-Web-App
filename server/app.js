@@ -27,6 +27,11 @@ initializeApp({
 
 const db = getFirestore();
 
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Hello from Express!' });
 });
@@ -58,7 +63,15 @@ app.post('/register', async (req, res) => {
         res.status(500).json({ error: 'Error registering user' });
     }
 });
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+
+app.post('/addDocument', async (req, res) => {
+
+  try {
+      const response = await db.collection('knowledgeHub').doc().set(req.body);
+      console.log(response)
+      res.status(200).json({ message: 'successful' });
+  } catch (error) {
+      res.status(500).json({ error: 'Error registering user' });
+  }
 });
+

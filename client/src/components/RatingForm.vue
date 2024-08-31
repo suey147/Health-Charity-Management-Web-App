@@ -11,9 +11,7 @@
               :key="star"
               class="star"
               @click="setRating(star)"
-              @mouseover="hoverRating(star)"
-              @mouseleave="resetRating"
-              :class="{'text-warning': star <= currentRating || star <= hoverRating, 'text-muted': star > currentRating && star > hoverRating}"
+              :class="{'text-warning': star <= currentRating, 'text-muted': star > currentRating}"
             >
               ★
             </span>
@@ -36,22 +34,12 @@
     })
     const stars = ref([1, 2, 3, 4, 5]);
     const currentRating = ref(0);
-    const hoverRatingNum = ref(0);  
 
     const setRating = (star) => {
         currentRating.value = star;
       };
-    const hoverRating = (star) => {
-        hoverRatingNum.value = star;
-    };
-
-    const resetRating = () => {
-        hoverRating.value = 0;
-    };
     
     const submitForm = () => {
-        // Handle form submission
-        alert(`Rating: ${this.currentRating}`);
         // Reset form fields
         currentRating.value = 0;
     }
