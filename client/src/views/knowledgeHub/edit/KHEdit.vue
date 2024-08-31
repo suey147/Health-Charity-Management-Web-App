@@ -91,6 +91,7 @@ import DOMPurify from 'dompurify';
 import axios from 'axios'
 
 const newDocument = ref({
+    id: '',
     title: '',
     author: '',
     publishedDate: '',
@@ -159,8 +160,8 @@ const handleAddNew = () => {
 }
 
 const saveDocuments = async () => {
-    console.log(DOMPurify.sanitize(newDocument.value.content))
     newDocument.value.content = DOMPurify.sanitize(newDocument.value.content);
+    newDocument.value.id = Math.floor(Math.random() * 100000);
     try {
             const response = await axios.post('http://localhost:5000/addDocument', newDocument.value);
             const message = response.data.message;

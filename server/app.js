@@ -67,9 +67,31 @@ app.post('/register', async (req, res) => {
 app.post('/addDocument', async (req, res) => {
 
   try {
-      const response = await db.collection('knowledgeHub').doc().set(req.body);
+      console.log(req.body.selectedCategory)
+      const response = await db.collection('knowledgeHub').doc('documents').collection(req.body.selectedCategory).doc().set(req.body);
       console.log(response)
       res.status(200).json({ message: 'successful' });
+  } catch (error) {
+      res.status(500).json({ error: 'Error registering user' });
+  }
+});
+
+app.post('/getDocuments', async (req, res) => {
+
+  try {
+      const collectionRef = db.collection('knowledgeHub').doc('documents');
+      const collections = await collectionRef.listCollections();
+
+      const allDocs = {};
+      for (const collection of collections) {
+        const snapshot = await collection.get();
+        const documents = snapshot.docs.map(doc => ({
+          id: doc.id,
+          data: doc.data()
+        }));
+        allDocs[collection.id] = documents;
+      }
+      res.status(200).json({ documents: allDocs });
   } catch (error) {
       res.status(500).json({ error: 'Error registering user' });
   }

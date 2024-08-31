@@ -12,15 +12,14 @@
             </template>
 
             <template>
-                <Column field="title" header="Category" class="bg-info" ></Column>
+                <Column field="category" header="Category" class="bg-info" ></Column>
                 <Column expander style="width: 3rem" class="bg-info"/>
             </template>
             <template #expansion="slotProps" >
                 <div class="p-4">
                     <DataTable :value="slotProps.data.documents" @rowClick="onRowClick">
-                        <Column field="id" header="Id" sortable></Column>
                         <Column field="title" header="Title" sortable></Column>
-                        <Column field="date" header="Date" sortable></Column>
+                        <Column field="publishedDate" header="Date" sortable></Column>
                         <Column field="rating" header="Reviews"></Column>
                     </DataTable>
                 </div>
@@ -44,13 +43,30 @@
     import Column from "primevue/column";
     import router from '@/router/index.js';
     import { FilterMatchMode } from "@primevue/core/api"
-
+    import axios from 'axios'
     const docs = ref();
     const expandedRows = ref({});
     const toast = useToast();
 
-    onMounted(() => {
-        docs.value = knowledgeHub.getKnowledge();
+    onMounted(async () => {
+        try {
+            const response = await axios.post('http://localhost:5000/getDocuments');
+            const alldocs = [];
+            for (const category in response.data.documents){
+                const categoryEntry = {
+                    category: category,
+                    documents: response.data.documents[category].map(doc => ({
+                        id: doc.id,
+                        ...doc.data
+                    }))
+                }
+                alldocs.push(categoryEntry);
+            }
+            docs.value = alldocs;
+            console.log(alldocs)
+        } catch (error) {
+            console.log('Error' + error.message);
+        }
     });
 
     const onRowExpand = (event) => {
