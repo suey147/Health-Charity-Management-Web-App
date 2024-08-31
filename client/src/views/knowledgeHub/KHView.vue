@@ -5,7 +5,6 @@
 
 <script setup>
     import KnowledgeHubTable from './KHTable.vue';
-
 </script>
 
 <style scoped>

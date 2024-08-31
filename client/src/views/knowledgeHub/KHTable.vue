@@ -38,23 +38,28 @@
 <script setup>
     import { ref, onMounted, computed} from 'vue';
     import { useToast } from 'primevue/usetoast';
-    import { knowledgeHub } from '../../assets/knowledgeHub/documents.js';
     import DataTable from "primevue/datatable";
     import Column from "primevue/column";
     import router from '@/router/index.js';
     import { FilterMatchMode } from "@primevue/core/api"
     import axios from 'axios'
+
     const docs = ref();
     const expandedRows = ref({});
     const toast = useToast();
 
-    onMounted(async () => {
+    onMounted(() => {
+        getDocumentsData();
+    });
+
+    const fetchAndStoreData = async () => {
         try {
             const response = await axios.post('http://localhost:5000/getDocuments');
             const alldocs = [];
             for (const category in response.data.documents){
                 const categoryEntry = {
                     category: category,
+                    id: category,
                     documents: response.data.documents[category].map(doc => ({
                         id: doc.id,
                         ...doc.data
@@ -62,12 +67,28 @@
                 }
                 alldocs.push(categoryEntry);
             }
-            docs.value = alldocs;
-            console.log(alldocs)
-        } catch (error) {
-            console.log('Error' + error.message);
+            
+            const dataString = JSON.stringify(alldocs);
+            
+            localStorage.setItem('documents', dataString);
+            return alldocs;
+        } catch (error){
+            console.log('Error: '+error.message);
+            return [];
         }
-    });
+    }
+    
+    const getDocumentsData = async () => {
+        const dataString = localStorage.getItem('documents');
+        let alldocs;
+        
+        if (dataString){
+            alldocs = JSON.parse(dataString);   
+        } else {
+            alldocs = await fetchAndStoreData();
+        }
+        docs.value = alldocs;
+    }
 
     const onRowExpand = (event) => {
         toast.add({ severity: 'info', summary: 'Row Expanded', detail: event.data.name, life: 3000 });
@@ -84,6 +105,7 @@
 
     const onRowClick = (event) => {
         const document = event.data;
+        console.log(document.id)
         router.push({
             name: 'DocumentPage',
             params: {id: document.id}

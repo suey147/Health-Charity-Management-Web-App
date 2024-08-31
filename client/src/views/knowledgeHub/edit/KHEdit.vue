@@ -105,14 +105,51 @@ const docs = ref();
 const selectedDocuments = ref();
 // doc in the row
 const doc = ref({});
-
+const docData = ref();
 // dialogs
 const addDocumentDialog = ref(false);
 const deleteDocDialog = ref(false);
 onMounted(() => {
-    docs.value = knowledgeHub.getKnowledge().flatMap((category) => category.documents);
+    // docs.value = knowledgeHub.getKnowledge().flatMap((category) => category.documents);
+    getDocumentsData();
+    docs.value = docData.value.flatMap((category) => category.documents);
 });
 
+const fetchAndStoreData = async () => {
+    try {
+        const response = await axios.post('http://localhost:5000/getDocuments');
+        const alldocs = [];
+        for (const category in response.data.documents){
+            const categoryEntry = {
+                category: category,
+                id: category,
+                documents: response.data.documents[category].map(doc => ({
+                    id: doc.id,
+                    ...doc.data
+                }))
+            }
+            alldocs.push(categoryEntry);
+        }
+        
+        const dataString = JSON.stringify(alldocs);
+        
+        localStorage.setItem('documents', dataString);
+        return alldocs;
+    } catch (error){
+        console.log('Error: '+error.message);
+        return [];
+    }
+}
+    
+const getDocumentsData = async () => {
+    const dataString = localStorage.getItem('documents');
+    if (dataString){
+        docData.value = JSON.parse(dataString);   
+    } else {
+        docData.value = await fetchAndStoreData();
+    }
+    
+}
 const categories = ref([
     {label: 'School', value: 'school'},
     {label: 'Understanding Behavior', value: 'understanding behavior'},

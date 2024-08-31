@@ -21,6 +21,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 const serviceAccount = require('./fit5032-assignment-ce36f-firebase-adminsdk-c3nrq-ddbdcc874f.json');
+const { log } = require('console');
 initializeApp({
     credential: cert(serviceAccount),
 });
