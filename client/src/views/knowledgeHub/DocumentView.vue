@@ -2,6 +2,7 @@
     <!-- Page content -->
     <div class="container mt-5">
       <div class="row">
+        <div class="col-10">
         <!-- Post content -->
           <article>
             <!-- Post header -->
@@ -17,15 +18,16 @@
             <section class="mb-5" v-html="selectedDocument.content"></section>
           </article>
         </div>
+        <div class="col-2">
+          <RatingForm :initialRating="selectedDocument.rating" :docId="selectedDocument.id" :category="selectedDocument.selectedCategory"/>
+        </div>
+      </div>
     </div>
-
-    <RatingForm :initialRating="selectedDocument.rating"/>
 </template>
 
 <script setup>
-    import { knowledgeHub } from '@/assets/knowledgeHub/documents';
     import RatingForm from '@/components/RatingForm.vue';
-    import { computed } from 'vue';
+    import { ref, computed } from 'vue';
     import { useRoute } from 'vue-router';
     import { defineProps } from 'vue';
     const props = defineProps({
@@ -35,11 +37,7 @@
     })
     const route = useRoute();
     const docId = route.params.id;
-
-    const categories = knowledgeHub.getKnowledge();
-
     const selectedDocument = computed(() => {
-        // return categories.flatMap(category => category.documents).find(doc => doc.id === docId);
       const dataString = localStorage.getItem('documents');
       const documents = JSON.parse(dataString);
       return documents.flatMap(category => category.documents).find(doc => doc.id === docId);

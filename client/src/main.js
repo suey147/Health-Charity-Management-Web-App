@@ -11,6 +11,8 @@ import ToastService from 'primevue/toastservice';
 import Aura from '@primevue/themes/aura';
 import store from './store'
 import DialogService from 'primevue/dialogservice'
+import firebaseApp from './firebase'
+import { VueFire } from 'vuefire'
 
 const app = createApp(App);
 
@@ -19,6 +21,10 @@ app.use(PrimeVue, {
         preset: Aura
     }
 });
+
+app.use(VueFire, {
+    firebaseApp
+})
 app.use(ToastService);
 app.use(router);
 app.use(store);

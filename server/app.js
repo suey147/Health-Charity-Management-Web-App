@@ -27,7 +27,6 @@ initializeApp({
 });
 
 const db = getFirestore();
-
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
@@ -69,7 +68,7 @@ app.post('/addDocument', async (req, res) => {
 
   try {
       console.log(req.body.selectedCategory)
-      const response = await db.collection('knowledgeHub').doc('documents').collection(req.body.selectedCategory).doc().set(req.body);
+      const response = await db.collection('knowledgeHub').doc().set(req.body);
       console.log(response)
       res.status(200).json({ message: 'successful' });
   } catch (error) {
@@ -98,3 +97,13 @@ app.post('/getDocuments', async (req, res) => {
   }
 });
 
+app.post('/updateRating', async (req, res) => {
+  const {category, documentID, rating} = req.body;
+  try {
+      const documentRef = db.collection('knowledgeHub').doc('documents').collection(category).doc(documentID);
+      const result = await documentRef.update({ rating: rating});
+      res.status(200).json("updated rating");
+  } catch (error) {
+      res.status(500).json({ error: error});
+  }
+});

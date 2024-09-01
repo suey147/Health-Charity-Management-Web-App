@@ -1,4 +1,5 @@
 <template>
+    <div class="col-md-8 offset-md-2">
         <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" v-model="filters['global'].value">
 
         <DataTable v-model:expandedRows="expandedRows" :value="docs" dataKey="id"
@@ -20,7 +21,11 @@
                     <DataTable :value="slotProps.data.documents" @rowClick="onRowClick">
                         <Column field="title" header="Title" sortable></Column>
                         <Column field="publishedDate" header="Date" sortable></Column>
-                        <Column field="rating" header="Reviews"></Column>
+                        <Column header="Reviews">
+                            <template #body="rating">
+                                {{ rating.data.rating[0] }}
+                            </template>
+                        </Column>
                     </DataTable>
                 </div>
             </template>
@@ -32,7 +37,7 @@
             <Column field="date" header="Date" sortable></Column>
             <Column field="rating" header="Reviews"></Column>
         </DataTable>
-
+    </div>
 </template>
 
 <script setup>
