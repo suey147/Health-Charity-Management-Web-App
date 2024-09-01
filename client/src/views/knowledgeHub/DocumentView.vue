@@ -2,7 +2,7 @@
     <!-- Page content -->
     <div class="container mt-5">
       <div class="row">
-        <div class="col-10">
+        <div class="col-9 order-md-1">
         <!-- Post content -->
           <article>
             <!-- Post header -->
@@ -18,15 +18,16 @@
             <section class="mb-5" v-html="selectedDocument.content"></section>
           </article>
         </div>
-        <div class="col-2">
-          <RatingForm :initialRating="selectedDocument.rating" :docId="selectedDocument.id" :category="selectedDocument.selectedCategory"/>
+        <div class="col-md-3 order-md-2 mb-4">
+          
+          <RatingForm :docId="selectedDocument.id"/>
         </div>
       </div>
     </div>
 </template>
 
 <script setup>
-    import RatingForm from '@/components/RatingForm.vue';
+    import RatingForm from './RatingForm.vue';
     import { ref, computed } from 'vue';
     import { useRoute } from 'vue-router';
     import { defineProps } from 'vue';

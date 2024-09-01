@@ -20,7 +20,7 @@
                 <div class="p-4">
                     <DataTable :value="slotProps.data.documents" @rowClick="onRowClick">
                         <Column field="title" header="Title" sortable></Column>
-                        <Column field="publishedDate" header="Date" sortable></Column>
+                        <Column field="date" header="Date" sortable></Column>
                         <Column header="Reviews">
                             <template #body="rating">
                                 {{ rating.data.rating[0] }}
@@ -47,7 +47,6 @@
     import Column from "primevue/column";
     import router from '@/router/index.js';
     import { FilterMatchMode } from "@primevue/core/api"
-    import axios from 'axios'
 
     const docs = ref();
     const expandedRows = ref({});
@@ -57,41 +56,10 @@
         getDocumentsData();
     });
 
-    const fetchAndStoreData = async () => {
-        try {
-            const response = await axios.post('http://localhost:5000/getDocuments');
-            const alldocs = [];
-            for (const category in response.data.documents){
-                const categoryEntry = {
-                    category: category,
-                    id: category,
-                    documents: response.data.documents[category].map(doc => ({
-                        id: doc.id,
-                        ...doc.data
-                    }))
-                }
-                alldocs.push(categoryEntry);
-            }
-            
-            const dataString = JSON.stringify(alldocs);
-            
-            localStorage.setItem('documents', dataString);
-            return alldocs;
-        } catch (error){
-            console.log('Error: '+error.message);
-            return [];
-        }
-    }
     
-    const getDocumentsData = async () => {
+    const getDocumentsData= () => {
         const dataString = localStorage.getItem('documents');
-        let alldocs;
-        
-        if (dataString){
-            alldocs = JSON.parse(dataString);   
-        } else {
-            alldocs = await fetchAndStoreData();
-        }
+        const alldocs = JSON.parse(dataString);   
         docs.value = alldocs;
     }
 
@@ -109,11 +77,11 @@
     };
 
     const onRowClick = (event) => {
-        const document = event.data;
-        console.log(document.id)
+        const documentId = event.data;
+        console.log(documentId.id)
         router.push({
             name: 'DocumentPage',
-            params: {id: document.id}
+            params: {id: documentId.id}
         })
     }
     const combinedDocuments = computed(() => {

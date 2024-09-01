@@ -7,7 +7,6 @@
             <button class="btn btn-success bi bi-plus mr-2" severity="success" @click="openNew">New</button>
         </div>
         <DataTable v-model:selection="selectedDocuments" :value="docs" :filters="filters" @rowClick="onRowClick">
-            <!-- <Column selectionMode="multiple" style="width: 3rem"></Column> -->
             <Column field="id" header="Id" sortable></Column>
             <Column field="title" header="Title" sortable></Column>
             <Column field="date" header="Date" sortable></Column>
@@ -24,7 +23,7 @@
         <Toast />
 
         <Dialog v-model:visible="addDocumentDialog"  header="Add new document" :modal="true">
-            <form @submit.prevent="handleAddNew">
+            <form @submit.prevent="saveDocuments">
                 <div class="flex flex-col gap-6">
                     <div class="mb-3">
                         <label for="title" class="block font-bold mb-3 form-label">Title</label>
@@ -40,7 +39,7 @@
                     <!-- Published Date -->
                     <div>
                         <label for="publishedDate" class="block font-bold mb-3 form-label">Published Date:</label>
-                        <input type="date" id="title" class="form-control" v-model="newDocument.publishedDate" />
+                        <input type="date" id="title" class="form-control" v-model="newDocument.date" />
                     </div>
 
                     <div class="mb-3">
@@ -50,7 +49,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="category" class="block font-bold mb-3 form-label">Category</label>
-                        <select v-model="newDocument.selectedCategory" class="form-control">
+                        <select v-model="newDocument.category" class="form-control">
                             <option v-for="category in categories" :key="category.value" :value="category.value">
                                 {{ category.label }}
                             </option>
@@ -59,7 +58,7 @@
                 </div>
                 <div>
                     <button class="bi bi-times btn btn-light" text @click="hideDialog">Cancel</button>
-                    <button class="bi bi-check btn btn-primary" @click="saveDocuments()">Save</button>
+                    <button class="bi bi-check btn btn-primary">Save</button>
                 </div>
             </form>
         </Dialog>
@@ -67,7 +66,7 @@
         <Dialog v-model:visible="deleteDocDialog"  header="Confirm" :modal="true">
             <div class="flex items-center gap-4">
                 <i class="pi pi-exclamation-triangle !text-3xl" />
-                <span v-if="doc">Are you sure you want to delete <b>{{ doc.title }}</b>?</span>
+                <span v-if="doc">Are you sure you want to delete <b>{{ row.title }}</b>?</span>
             </div>
             <div class="flex flex-wrap justify-end gap-2 text-end">
                 <button class="bi bi-times btn btn-light" @click="deleteDocDialog = false">No</button>
@@ -78,7 +77,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted} from 'vue';
+import { ref, onMounted, computed, watch} from 'vue';
 import DataTable from "primevue/datatable";
 import Column from "primevue/column";
 import router from '@/router/index.js';
@@ -89,68 +88,38 @@ import { FilterMatchMode } from "@primevue/core/api"
 import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css';
 import DOMPurify from 'dompurify';
-import axios from 'axios'
+import { collection, doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { db } from '../../../firebase.js'
 
 const newDocument = ref({
-    id: '',
     title: '',
     author: '',
-    publishedDate: '',
+    date: '',
     content: '',
-    selectedCategory: ''
+    category: '',
+    rating: [0,0]
 });
 const toast = useToast();
 // all documents in the database
-const docs = ref();
+const docs = ref([]);
 // selected douments with multiple selection
 const selectedDocuments = ref();
 // doc in the row
-const doc = ref({});
-const docData = ref();
+const row = ref();
+
 // dialogs
 const addDocumentDialog = ref(false);
 const deleteDocDialog = ref(false);
 onMounted(() => {
-    // docs.value = knowledgeHub.getKnowledge().flatMap((category) => category.documents);
-    getDocumentsData();
-    // docs.value = docData.value.flatMap((category) => category.documents);
+    updateFromLocalStorage()
 });
 
-const fetchAndStoreData = async () => {
-    try {
-        const response = await axios.post('http://localhost:5000/getDocuments');
-        const alldocs = [];
-        for (const category in response.data.documents){
-            const categoryEntry = {
-                category: category,
-                id: category,
-                documents: response.data.documents[category].map(doc => ({
-                    id: doc.id,
-                    ...doc.data
-                }))
-            }
-            alldocs.push(categoryEntry);
-        }
-        
-        const dataString = JSON.stringify(alldocs);
-        
-        localStorage.setItem('documents', dataString);
-        return alldocs;
-    } catch (error){
-        console.log('Error: '+error.message);
-        return [];
-    }
+const updateFromLocalStorage = () => {
+    const fromLocal = JSON.parse(localStorage.getItem('documents'));
+    const all = fromLocal.flatMap((category) => category.documents);
+    docs.value = all;
 }
-    
-const getDocumentsData = async () => {
-    const dataString = localStorage.getItem('documents');
-    if (dataString){
-        docData.value = JSON.parse(dataString);   
-    } else {
-        docData.value = await fetchAndStoreData();
-    }
-    
-}
+
 const categories = ref([
     {label: 'School', value: 'school'},
     {label: 'Understanding Behavior', value: 'understanding behavior'},
@@ -168,23 +137,22 @@ const onRowClick = (event) => {
 
 const openNew = () => {
     document.value = {};
-    // submitted.value = false;
     addDocumentDialog.value = true;
 };
 const hideDialog = () => {
     addDocumentDialog.value = false;
-    // submitted.value = false;
 };
 
 // DELETE
 const confirmDeleteDocs = (prod) => {
-    doc.value = prod;
+    row.value = prod;
     deleteDocDialog.value = true;
 };
-const deleteDocuments = () => {
-    docs.value = docs.value.filter(document => document.id !== doc.value.id);
+const deleteDocuments = async() => {
+    const response = await deleteDoc(doc(collection(db, 'knowledgeHub'), row.value.id));
     deleteDocDialog.value = false;
-    doc.value = {};
+    row.value = {};
+    updateFromLocalStorage();
     toast.add({severity:'success', summary: 'Successful', detail: 'Document Deleted', life: 3000});
 };
 
@@ -192,21 +160,18 @@ const filters = ref({
         'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
 });
 
-const handleAddNew = () => {
-    console.log(JSON.stringify(newDocument.value.content.ops, null, 2))
-    console.log(newDocument.value)
-}
-
 const saveDocuments = async () => {
     newDocument.value.content = DOMPurify.sanitize(newDocument.value.content);
-    newDocument.value.id = Math.floor(Math.random() * 100000);
     try {
-            const response = await axios.post('http://localhost:5000/addDocument', newDocument.value);
-            const message = response.data.message;
-            console.log(message);
-        } catch (error) {
-            console.log('Error' + error.message);
-        }
+        const response = await setDoc(doc(collection(db, 'knowledgeHub')), newDocument.value);
+        toast.add({severity:'success', summary: 'Successful', detail: 'Document Added', life: 3000});
+        hideDialog();
+        updateFromLocalStorage();
+    } catch (error) {
+        toast.add({severity:'success', summary: 'Successful', detail: error.message, life: 3000});
+    }
+    
+
 }
 </script>
 

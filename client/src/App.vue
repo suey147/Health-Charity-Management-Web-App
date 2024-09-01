@@ -29,9 +29,9 @@
     }, {});
     const allDocs = Object.keys(categorized).map(category => ({
       category,
+      id: category,
       documents: categorized[category]
     }));
-    console.log(allDocs)
     localStorage.setItem('documents', JSON.stringify(allDocs));
   }
   getDocuments()
