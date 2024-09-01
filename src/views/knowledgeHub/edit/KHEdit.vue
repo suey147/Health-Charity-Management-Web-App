@@ -6,7 +6,7 @@
         <div class="flex flex-wrap justify-end gap-2 text-end">
             <button class="btn btn-success bi bi-plus mr-2" severity="success" @click="openNew">New</button>
         </div>
-        <DataTable v-model:selection="selectedDocuments" :value="docs" :filters="filters" @rowClick="onRowClick">
+        <DataTable :value="docs" :filters="filters" @rowClick="onRowClick">
             <Column field="id" header="Id" sortable></Column>
             <Column field="title" header="Title" sortable></Column>
             <Column field="date" header="Date" sortable></Column>
@@ -77,102 +77,146 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch} from 'vue';
-import DataTable from "primevue/datatable";
-import Column from "primevue/column";
-import router from '@/router/index.js';
-import Dialog from 'primevue/dialog';
-import { useToast } from 'primevue/usetoast';
-import Toast from 'primevue/toast';
-import { FilterMatchMode } from "@primevue/core/api"
-import { QuillEditor } from '@vueup/vue-quill'
-import '@vueup/vue-quill/dist/vue-quill.snow.css';
-import DOMPurify from 'dompurify';
-import { collection, doc, setDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '../../../firebase.js'
+    import { ref, onMounted, computed, watch} from 'vue';
+    import DataTable from "primevue/datatable";
+    import Column from "primevue/column";
+    import router from '@/router/index.js';
+    import Dialog from 'primevue/dialog';
+    import { useToast } from 'primevue/usetoast';
+    import Toast from 'primevue/toast';
+    import { FilterMatchMode } from "@primevue/core/api"
+    import { QuillEditor } from '@vueup/vue-quill'
+    import '@vueup/vue-quill/dist/vue-quill.snow.css';
+    import DOMPurify from 'dompurify';
+    import { collection, doc, setDoc, deleteDoc } from 'firebase/firestore';
+    import { db } from '../../../firebase.js'
+    /**
+     * Toast instance for displaying notifications.
+     */
+    const toast = useToast();
+    /**
+     * Reactive reference to store all documents in the database.
+     */
+    const docs = ref([]);
+    /**
+     * Reactive reference to the document that store in the row.
+     */
+    const row = ref();
+    /**
+     * Reactive reference to control the visibility of the add document dialog.
+     */
+    const addDocumentDialog = ref(false);
+    /**
+     * Reactive reference to control the visibility of the delete document dialog.
+     */
+    const deleteDocDialog = ref(false);
 
-const newDocument = ref({
-    title: '',
-    author: '',
-    date: '',
-    content: '',
-    category: '',
-    rating: [0,0]
-});
-const toast = useToast();
-// all documents in the database
-const docs = ref([]);
-// selected douments with multiple selection
-const selectedDocuments = ref();
-// doc in the row
-const row = ref();
+    /**
+     * Reactive reference for a new document.
+     */
+    const newDocument = ref({
+        title: '',
+        author: '',
+        date: '',
+        content: '',
+        category: '',
+        rating: [0,0]
+    });
 
-// dialogs
-const addDocumentDialog = ref(false);
-const deleteDocDialog = ref(false);
-onMounted(() => {
-    updateFromLocalStorage()
-});
+    /**
+     * Reactive reference for document categories.
+     */
+    const categories = ref([
+        {label: 'School', value: 'school'},
+        {label: 'Understanding Behavior', value: 'understanding behavior'},
+        {label: 'Family Dynamics', value: 'family dynamics'},
+        {label: 'Funding', value: 'funding'}
+    ]);
 
-const updateFromLocalStorage = () => {
-    const fromLocal = JSON.parse(localStorage.getItem('documents'));
-    const all = fromLocal.flatMap((category) => category.documents);
-    docs.value = all;
-}
+    /**
+     * Lifecycle hook that runs when the component is mounted.
+     */
+    onMounted(() => {
+        updateFromLocalStorage()
+    });
 
-const categories = ref([
-    {label: 'School', value: 'school'},
-    {label: 'Understanding Behavior', value: 'understanding behavior'},
-    {label: 'Family Dynamics', value: 'family dynamics'},
-    {label: 'Funding', value: 'funding'}
-]);
-
-const onRowClick = (event) => {
-    const document = event.data;
-    router.push({
-        name: 'DocumentPage',
-        params: {id: document.id}
-    })
-}
-
-const openNew = () => {
-    document.value = {};
-    addDocumentDialog.value = true;
-};
-const hideDialog = () => {
-    addDocumentDialog.value = false;
-};
-
-// DELETE
-const confirmDeleteDocs = (prod) => {
-    row.value = prod;
-    deleteDocDialog.value = true;
-};
-const deleteDocuments = async() => {
-    const response = await deleteDoc(doc(collection(db, 'knowledgeHub'), row.value.id));
-    deleteDocDialog.value = false;
-    row.value = {};
-    updateFromLocalStorage();
-    toast.add({severity:'success', summary: 'Successful', detail: 'Document Deleted', life: 3000});
-};
-
-const filters = ref({
-        'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
-});
-
-const saveDocuments = async () => {
-    newDocument.value.content = DOMPurify.sanitize(newDocument.value.content);
-    try {
-        const response = await setDoc(doc(collection(db, 'knowledgeHub')), newDocument.value);
-        toast.add({severity:'success', summary: 'Successful', detail: 'Document Added', life: 3000});
-        hideDialog();
-        updateFromLocalStorage();
-    } catch (error) {
-        toast.add({severity:'success', summary: 'Successful', detail: error.message, life: 3000});
+    /**
+     * Updates the documents from localStorage.
+     */
+    const updateFromLocalStorage = () => {
+        const fromLocal = JSON.parse(localStorage.getItem('documents'));
+        const all = fromLocal.flatMap((category) => category.documents);
+        docs.value = all;
     }
-    
 
-}
+    /**
+     * Handles the row click event and navigates to the document page.
+     * @param {Object} event - The event object containing row data.
+     */
+    const onRowClick = (event) => {
+        const document = event.data;
+        router.push({
+            name: 'DocumentPage',
+            params: {id: document.id}
+        })
+    }
+
+    /**
+     * Opens the add document dialog.
+     */
+    const openNew = () => {
+        document.value = {};
+        addDocumentDialog.value = true;
+    };
+
+    /**
+     * Hides the add document dialog.
+     */
+    const hideDialog = () => {
+        addDocumentDialog.value = false;
+    };
+
+    /**
+     * Confirms the deletion of a document.
+     * @param {Object} prod - The document to be deleted.
+     */
+    const confirmDeleteDocs = (prod) => {
+        row.value = prod;
+        deleteDocDialog.value = true;
+    };
+
+    /**
+     * Reactive reference to store filter settings.
+     * @type {Object}
+     */
+     const filters = ref({
+            'global': {value: null, matchMode: FilterMatchMode.CONTAINS},
+    });
+    /**
+     * Deletes the selected document from Firestore.
+     */ 
+    const deleteDocuments = async() => {
+        const response = await deleteDoc(doc(collection(db, 'knowledgeHub'), row.value.id));
+        deleteDocDialog.value = false;
+        row.value = {};
+        updateFromLocalStorage();
+        toast.add({severity:'success', summary: 'Successful', detail: 'Document Deleted', life: 3000});
+    };
+
+    /**
+     * Saves a new document to Firestore.
+     */
+    const saveDocuments = async () => {
+        newDocument.value.content = DOMPurify.sanitize(newDocument.value.content);
+        try {
+            const response = await setDoc(doc(collection(db, 'knowledgeHub')), newDocument.value);
+            toast.add({severity:'success', summary: 'Successful', detail: 'Document Added', life: 3000});
+            hideDialog();
+            updateFromLocalStorage();
+        } catch (error) {
+            toast.add({severity:'success', summary: 'Successful', detail: error.message, life: 3000});
+        }
+    }
 </script>
 
 

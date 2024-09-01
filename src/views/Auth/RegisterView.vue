@@ -1,4 +1,5 @@
 <template>
+    <Toast />
     <div class="container mt-5">
         <div class="col-md-8 offset-md-2">
             <div class="card mx-4 mx-md-5 shadow-5-strong bg-success-subtle" style="backdrop-filter: blur(30px);">
@@ -96,8 +97,28 @@
     import { collection, doc, setDoc } from 'firebase/firestore';
     import { db } from '../../firebase.js'
     import { useToast } from 'primevue/usetoast';
+    import Toast from 'primevue/toast';
+
+    /**
+     * Router instance for navigation.
+     */
     const router = useRouter();
     const toast = useToast();
+    /**
+     * Reactive array to store users.
+     * @type {Array<Object>}
+     */
+     const users = ref([]);
+     /**
+     * Reactive value for confirming the password.
+     * @type {string}
+     */
+     const confirmPassword = ref("");
+
+    /**
+     * Reactive form data for user registration.
+     * @type {Object}
+     */
     const formData = ref({
         username: '',
         lname: '',
@@ -107,8 +128,24 @@
         email: ''
     });
 
-    const users = ref([]);
+    /**
+     * Reactive object to store validation errors.
+     * @type {Object}
+     */
+    const errors = ref({
+        username: null,
+        password: null,
+        role: null,
+        confirmPassword: null,
+        lname: null,
+        fname: null
+    });
 
+    /**
+     * Adds a new user after validating the form data.
+     * @async
+     * @function addUser
+     */
     const addUser = async () => {
         validateUserName(true);
         validatePassword(true);
@@ -127,6 +164,13 @@
             }
         }
     };
+
+    /**
+     * Registers a new user in the Firestore database.
+     * @async
+     * @function handleRegister
+     * @param {Object} userData - The user data to register.
+     */
     const handleRegister = async (userData) => {
         try {
             const userRef = doc(collection(db, 'Users'));
@@ -138,15 +182,12 @@
             toast.add({ severity: 'danger', summary: 'Register failed' });
         }
     };
-    const errors = ref({
-        username: null,
-        password: null,
-        role: null,
-        confirmPassword: null,
-        lname: null,
-        fname: null
-    });
 
+    /**
+     * Validates the username field.
+     * @function validateUserName
+     * @param {boolean} blur - Indicates if the validation is triggered by a blur event.
+     */
     const validateUserName = (blur) => {
         if (formData.value.username.length <3){
             if(blur) errors.value.username = "Name must be at least 3 characters";
@@ -154,6 +195,12 @@
             errors.value.username = null;
         }
     }
+
+    /**
+     * Validates the first name field.
+     * @function validateFName
+     * @param {boolean} blur - Indicates if the validation is triggered by a blur event.
+     */
     const validateFName = (blur) => {
         if (!formData.value.fname) {
             if(blur) errors.value.fname = 'Name is required.';
@@ -164,6 +211,11 @@
         }
     }
 
+    /**
+     * Validates the last name field.
+     * @function validateLName
+     * @param {boolean} blur - Indicates if the validation is triggered by a blur event.
+     */
     const validateLName = (blur) => {
         if (!formData.value.lname) {
             if(blur) errors.value.lname = 'Last Name is required.';
@@ -174,6 +226,11 @@
         }
     }
 
+    /**
+     * Validates the password field.
+     * @function validatePassword
+     * @param {boolean} blur - Indicates if the validation is triggered by a blur event.
+     */
     const validatePassword = (blur) => {
         const password = formData.value.password;
         const minLength = 8;
@@ -197,6 +254,11 @@
         }
     }
 
+    /**
+     * Validates the role field.
+     * @function validateRole
+     * @param {boolean} blur - Indicates if the validation is triggered by a blur event.
+     */
     const validateRole = (blur) => {
         if (!formData.value.gender) {
             if (blur) errors.value.gender = 'Please select an option.';
@@ -204,7 +266,12 @@
             errors.value.gender = null;
         }
     }
-    const confirmPassword = ref("");
+
+    /**
+     * Validates the confirm password field.
+     * @function validateConfirmPassword
+     * @param {boolean} blur - Indicates if the validation is triggered by a blur event.
+     */
     const validateConfirmPassword = (blur) => {   
         if (formData.value.password !== confirmPassword.value) {
             if (blur) errors.value.confirmPassword = 'Passwords do not match.'
@@ -213,6 +280,11 @@
         }
     }
 
+    /**
+     * Validates the email field.
+     * @function validateEmail
+     * @param {boolean} blur - Indicates if the validation is triggered by a blur event.
+     */
     const validateEmail = (blur) => {
         const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         if (!re.test(formData.value.email)){
@@ -224,6 +296,4 @@
 </script>
 
 <style scoped>
-
-
 </style>

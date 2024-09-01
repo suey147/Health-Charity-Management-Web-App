@@ -27,20 +27,38 @@
 </template>
 
 <script setup>
-    import RatingForm from './RatingForm.vue';
-    import { ref, computed } from 'vue';
-    import { useRoute } from 'vue-router';
-    import { defineProps } from 'vue';
-    const props = defineProps({
-      id: {
-          type: String,
-      }
-    })
-    const route = useRoute();
-    const docId = route.params.id;
-    const selectedDocument = computed(() => {
-      const dataString = localStorage.getItem('documents');
-      const documents = JSON.parse(dataString);
-      return documents.flatMap(category => category.documents).find(doc => doc.id === docId);
-    })
+  import RatingForm from './RatingForm.vue';
+  import { ref, computed } from 'vue';
+  import { useRoute } from 'vue-router';
+  import { defineProps } from 'vue';
+  /**
+   * Props passed to the component.
+   * @type {Object}
+   * @property {string} id - The ID of the document.
+   */
+  const props = defineProps({
+    id: {
+        type: String,
+    }
+  })
+
+  /**
+   * Route instance for accessing route parameters.
+   */
+  const route = useRoute();
+  /**
+   * Document ID from the route parameters.
+   */
+  const docId = route.params.id;
+
+  /**
+   * Computed property to get the selected document based on the document ID.
+   * @function selectedDocument
+   * @returns {Object} The selected document.
+   */
+  const selectedDocument = computed(() => {
+    const dataString = localStorage.getItem('documents');
+    const documents = JSON.parse(dataString);
+    return documents.flatMap(category => category.documents).find(doc => doc.id === docId);
+  })
 </script>

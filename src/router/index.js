@@ -124,11 +124,21 @@ const routes = [
     },
 ]
 
+/**
+ * Vue Router instance.
+ * @type {Object}
+ */
 const router = createRouter({
     history: createWebHistory(),
     routes
 })
 
+/**
+ * Navigation guard to check authentication and authorization before each route.
+ * @param {Object} to - The target Route Object being navigated to.
+ * @param {Object} from - The current route being navigated away from.
+ * @returns {Object|undefined} The route to redirect to if authentication or authorization fails.
+ */
 router.beforeEach((to, from) => {
     // check authentication
     const isAuthenticated = authState.getters.isAuthenticated;

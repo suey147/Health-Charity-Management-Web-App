@@ -5,6 +5,11 @@
   import { db } from './firebase.js'
   import { ref } from "vue";
 
+  /**
+   * Fetches documents from the 'knowledgeHub' collection and categorizes them.
+   * @async
+   * @function getDocuments
+   */
   const getDocuments = async () => {
     const q = query(collection(db, "knowledgeHub"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
@@ -12,6 +17,12 @@
         categorizedDocuments(documents);
     });
   }
+
+  /**
+   * Categorizes documents by their category field and stores them in localStorage.
+   * @function categorizedDocuments
+   * @param {Array<Object>} documents - Array of document objects to categorize.
+   */
   const categorizedDocuments = (documents) => {
     const categorized = documents.reduce((acc, doc) => {
       const category = doc.category;
@@ -29,7 +40,6 @@
     localStorage.setItem('documents', JSON.stringify(allDocs));
   }
   getDocuments()
-
 </script>
 
 <template>
@@ -43,5 +53,4 @@
 </template>
 
 <style scoped>
-
 </style>
