@@ -1,7 +1,7 @@
 <template>
-    <div class="col-md-8 offset-md-2">
+    <div class="col-8 offset-2 col-sm-8 offset-2">
         <h1 class="text-center">Knowledge Hub</h1>
-        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" v-model="filters['global'].value">
+        <input class="form-control mr-2 mr-sm-2" type="search" placeholder="Search" aria-label="Search" v-model="filters['global'].value">
 
         <div class="flex flex-wrap justify-end gap-2 text-end">
             <button class="btn btn-success bi bi-plus mr-2" severity="success" @click="openNew">New</button>

@@ -6,12 +6,6 @@
   import { ref } from "vue";
 
   const getDocuments = async () => {
-    // const collectionRef = collection(db, "knowledgeHub");
-    // const fetchDoc = await getDocs(collectionRef);
-    // if (fetchDoc){
-    //   const documents = fetchDoc.docs.map(doc => ({id: doc.id, ...doc.data()}));
-    //   categorizedDocuments(documents)
-    // }
     const q = query(collection(db, "knowledgeHub"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
         const documents = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -44,13 +38,7 @@
   </header>
 
   <main>
-    <div class="container mt-5">
-        <div class="row">
-            <!-- <div class="col-md-8 offset-md-2"> -->
-              <router-view></router-view>
-            <!-- </div> -->
-        </div>
-    </div>
+    <router-view></router-view>
   </main>
 </template>
 

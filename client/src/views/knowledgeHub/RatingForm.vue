@@ -7,11 +7,13 @@
             <form @submit.prevent="sumbitVote">
             <h1 class="card-title pricing-card-title">{{ initialRating[0] }} <small class="text-muted">/ 5</small></h1>
             <ul class="list-unstyled mt-3 mb-4">
+                <p>What do you think about this article? Rate this article!</p>
                 <span v-for="star in stars" :key="star" class="star" @click="setRating(star)" :class="{'text-warning': star <= currentRating, 'text-muted': star > currentRating}">
                   ★
                 </span>
             </ul>
             <button type="submit" class="btn btn-lg btn-block btn-primary" v-if="!rated">Submit</button>
+            <p v-if="rated">You have successfully rated this articles</p>
             </form>
           </div>
           
