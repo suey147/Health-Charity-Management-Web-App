@@ -3,9 +3,9 @@
       <div class="container">
         <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
           <!-- logo -->
-          <a href="/" class="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-white text-decoration-none bg-dark">
+          <router-link to="/" class="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-white text-decoration-none bg-dark">
             <IconLogo/>
-          </a>
+          </router-link>
 
           <!-- Nav -->
           <ul class="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">
@@ -46,7 +46,7 @@
               <router-link to="/about/donate" class="btn btn-warning text-dark me-2" active-class="active">Donate</router-link>
               <router-link v-if="!$store.getters.isAuthenticated" to="/login" class="btn btn-primary text-dark me-2" active-class="active">Login</router-link>
               <div class="dropdown" v-if="$store.getters.isAuthenticated">
-                <a class="me-2 dropdown-toggle" id="userDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">{{user.username}}</a>
+                <a class="me-2 dropdown-toggle" id="userDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">{{user}}</a>
                 <ul class="dropdown-menu" aria-labelledby="userDropdownButton">
                   <li> <router-link to="/supports/events" class="dropdown-item nav-link" active-class="active">Events</router-link></li>
                   <li><router-link  to="/"  @click="handleLogout" class="btn btn-primary text-dark me-2" active-class="active">Logout</router-link></li>
@@ -69,13 +69,15 @@
   const router = useRouter();
 
   const handleLogout = () => {
-    store.commit('setAuthenticated', false);
-    router.push({ name: 'Home' });
+    store.commit('clearAuthState');
+    router.push({ name: 'Home' }).then(() => {
+      window.location.reload();
+    });
   };
 
   // automatically update when their dependencies change
   const user = computed(() => {
-    return store.getters.userDetails
+    return store.getters.currentUser
   })
 </script>
 

@@ -10,8 +10,8 @@ const authState = createStore({
         isAuthenticated: false,
         //Role of the authenticated user.
         role: null,
-        //Details of the authenticated user.
-        details: {}
+        //current user id 
+        currentUser: null
     },
     mutations:{
         /**
@@ -25,8 +25,11 @@ const authState = createStore({
          */
         setAuthenticated(state, payload){
             state.isAuthenticated = payload.isAuthenticated;
-            state.role = payload.user.role;
-            state.details = payload.user;
+            state.role = payload.role;
+            state.currentUser = payload.currentUser;
+            sessionStorage.setItem("isLoggedIn", state.isAuthenticated);
+            sessionStorage.setItem("role", state.role );
+            sessionStorage.setItem("currentUser", state.currentUser);
         },
         /**
          * Clears the authentication state.
@@ -36,28 +39,36 @@ const authState = createStore({
         clearAuthState(state){
             state.isAuthenticated = false;
             state.role = null;
-            state.details = {};
+            state.currentUser = null;
+            sessionStorage.removeItem("isLoggedIn");
+            sessionStorage.removeItem("role");
+            sessionStorage.removeItem("currentUser");
         }
     },
     getters:{
         /**
          * Gets the authentication status.
-         * @param {Object} state - The current state.
          * @returns {boolean} The authentication status.
          */
-        isAuthenticated(state){return state.isAuthenticated},
+        isAuthenticated(){
+            return sessionStorage.getItem("isLoggedIn");
+        },
         /**
          * Gets the role of the authenticated user.
          * @param {Object} state - The current state.
          * @returns {string|null} The role of the authenticated user.
          */
-        userRole(state){return state.role},
+        userRole(){
+            return sessionStorage.getItem("role");
+        },
         /**
          * Gets the details of the authenticated user.
          * @param {Object} state - The current state.
          * @returns {Object} The details of the authenticated user.
          */
-        userDetails(state){return state.details},
+        currentUser(){
+            return sessionStorage.getItem("currentUser");
+        },
         /**
          * Checks if the authenticated user is an admin.
          * @param {Object} state - The current state.
