@@ -15,15 +15,12 @@
     "@vueup/vue-quill": "^1.2.0",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
-    "bootstrap-vue": "^2.23.1",
     "dompurify": "^3.1.6",
     "firebase": "^10.13.0",
     "primeicons": "^7.0.0",
     "primevue": "^4.0.4",
-    "quill": "^2.0.2",
     "vue": "^3.4.29",
     "vue-router": "^4.4.3",
-    "vuefire": "^3.2.0",
     "vuex": "^4.1.0"
   },
   "devDependencies": {

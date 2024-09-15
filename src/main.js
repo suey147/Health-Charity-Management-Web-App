@@ -1,7 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import 'bootstrap-icons/font/bootstrap-icons.min.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 import router from './router'
 import { createApp } from 'vue'
@@ -11,8 +10,7 @@ import ToastService from 'primevue/toastservice'
 import Aura from '@primevue/themes/aura'
 import store from './store'
 import DialogService from 'primevue/dialogservice'
-import firebaseApp from './firebase'
-import { VueFire } from 'vuefire'
+
 /**
  * Initializes and mounts the Vue application.
  */
@@ -28,15 +26,7 @@ app.use(PrimeVue, {
     preset: Aura
   }
 })
-/**
- * Configures VueFire with the Firebase application.
- * @param {Object} VueFire - The VueFire plugin.
- * @param {Object} options - Configuration options for VueFire.
- * @param {Object} options.firebaseApp - The Firebase application instance.
- */
-app.use(VueFire, {
-  firebaseApp
-})
+
 /**
  * Configures the ToastService plugin.
  * @param {Object} ToastService - The ToastService plugin.
