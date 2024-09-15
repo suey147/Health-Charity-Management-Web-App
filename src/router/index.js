@@ -8,6 +8,7 @@ import AboutUsView from '@/views/About/AboutUsView.vue';
 import ContactUsView from '@/views/About/ContactUsView.vue';
 import DonationView from '@/views/About/DonationView.vue';
 import OurTeamView from '@/views/About/OurTeamView.vue';
+import DonationPaymenView from '@/views/About/DonationPaymenView.vue';
 
 // Supports
 import ForumView from '@/views/Supports/ForumView.vue';
@@ -51,13 +52,19 @@ const routes = [
                 path: 'contact-us',
                 name: 'Contact Us',
                 component: ContactUsView,
-            },
-            {
-                path: 'donate',
-                name: 'Donate',
-                component: DonationView,
             }
         ]
+    },
+    //Donate
+    {   
+        path: '/donate',
+        name: 'Donate',
+        component: DonationView,
+    },
+    {
+        path: '/payment',
+        name: 'Payment',
+        component: DonationPaymenView,
     },
     // Support section
     {

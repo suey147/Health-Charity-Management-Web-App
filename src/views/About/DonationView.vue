@@ -91,11 +91,12 @@
       </div>
     </div>
   </div>
-  
 </template>
 
 <script setup>
   import { ref } from "vue";
+  import router from "@/router";
+  import Toast from "primevue/toast";
   const isMonthlyActive = ref(false);
   const isOneTimeActive = ref(false);
 
@@ -116,6 +117,10 @@
     email: "",
     message: ""
   })
+
+  const makeDonation = () => {
+    router.push({ name: 'Payment' })
+  }
   
 </script>
 

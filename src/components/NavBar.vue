@@ -18,7 +18,7 @@
                   <li><router-link to="/about/about-us" class="dropdown-item nav-link" active-class="active">About us</router-link></li>
                   <li><router-link to="/about/contact-us" class="dropdown-item nav-link" active-class="active">Contact us</router-link></li>
                   <li><router-link to="/about/team" class="dropdown-item nav-link" active-class="active">Our Team</router-link></li>
-                  <li> <router-link to="/about/donate" class="dropdown-item nav-link" active-class="active">Donate</router-link></li>
+                  <li> <router-link to="/donate" class="dropdown-item nav-link" active-class="active">Donate</router-link></li>
                 </ul>
               </div>
             </li>
@@ -43,7 +43,7 @@
 
             <!-- Buttons -->
             <div class="text-end d-flex align-items-center">
-              <router-link to="/about/donate" class="btn btn-warning text-dark me-2" active-class="active">Donate</router-link>
+              <router-link to="/donate" class="btn btn-warning text-dark me-2" active-class="active">Donate</router-link>
               <router-link v-if="!$store.getters.isAuthenticated" to="/login" class="btn btn-primary text-dark me-2" active-class="active">Login</router-link>
               <div class="dropdown" v-if="$store.getters.isAuthenticated">
                 <a class="me-2 dropdown-toggle" id="userDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">{{user}}</a>
