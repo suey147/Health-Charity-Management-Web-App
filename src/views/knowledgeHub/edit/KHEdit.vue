@@ -25,14 +25,14 @@
             class="bi bi-pencil btn btn-light mr-2"
             outlined
             rounded
-            @click="editProduct(slotProps.data)"
+            @click="editProduct(slotProps.data), $event.stopPropagation()"
           />
           <button
             class="bi bi-trash btn btn-light"
             outlined
             rounded
             severity="danger"
-            @click="confirmDeleteDocs(slotProps.data)"
+            @click="confirmDeleteDocs(slotProps.data), $event.stopPropagation()"
           />
         </template>
       </Column>
@@ -102,7 +102,7 @@
     <Dialog v-model:visible="deleteDocDialog" header="Confirm" :modal="true">
       <div class="flex items-center gap-4">
         <i class="pi pi-exclamation-triangle !text-3xl" />
-        <span v-if="doc"
+        <span
           >Are you sure you want to delete <b>{{ row.title }}</b
           >?</span
         >
@@ -116,20 +116,20 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import router from '@/router/index.js'
-import Dialog from 'primevue/dialog'
-import { useToast } from 'primevue/usetoast'
-import Toast from 'primevue/toast'
-import { FilterMatchMode } from '@primevue/core/api'
-import { QuillEditor } from '@vueup/vue-quill'
-import '@vueup/vue-quill/dist/vue-quill.snow.css'
-import DOMPurify from 'dompurify'
-import { collection, doc, setDoc, deleteDoc } from 'firebase/firestore'
-import { db } from '../../../firebase'
-import createNewDocument from '../../../models/knowledgeHubDocument'
+import { ref, onMounted } from 'vue';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+import router from '@/router/index.js';
+import Dialog from 'primevue/dialog';
+import { useToast } from 'primevue/usetoast';
+import Toast from 'primevue/toast';
+import { FilterMatchMode } from '@primevue/core/api';
+import { QuillEditor } from '@vueup/vue-quill';
+import '@vueup/vue-quill/dist/vue-quill.snow.css';
+import DOMPurify from 'dompurify';
+import createNewDocument from '../../../models/knowledgeHubDocument';
+import axios from 'axios';
+import categorizedDocuments from '../../../utils/helper';
 /**
  * Toast instance for displaying notifications.
  */
@@ -170,17 +170,25 @@ const categories = ref([
  * Lifecycle hook that runs when the component is mounted.
  */
 onMounted(() => {
-  updateFromLocalStorage()
+  getDocumentCount()
 })
 
 /**
  * Updates the documents from localStorage.
  */
-const updateFromLocalStorage = () => {
-  const fromLocal = JSON.parse(localStorage.getItem('documents'))
-  const all = fromLocal.flatMap((category) => category.documents)
-  docs.value = all
-}
+const getDocumentCount = async() => {
+    try {
+        const response = await axios.get('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/getKnowledgeHubDoc');
+        const documents = response.data;
+        const categorized = categorizedDocuments(documents);
+        const alldocs = JSON.parse(categorized); 
+        const all = alldocs.flatMap((category) => category.documents)
+        docs.value = all;
+    } catch (error) {
+        console.error('Error fetching book count: ', error);
+        this.error = error;
+    }
+  }
 
 /**
  * Handles the row click event and navigates to the document page.
@@ -229,10 +237,10 @@ const filters = ref({
  * Deletes the selected document from Firestore.
  */
 const deleteDocuments = async () => {
-  const response = await deleteDoc(doc(collection(db, 'knowledgeHub'), row.value.id))
+  const response = await axios.post('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/removeKnowledgeHubDoc', {id: row.value.id});
+  getDocumentCount()
+  row.value = null
   deleteDocDialog.value = false
-  row.value = {}
-  updateFromLocalStorage()
   toast.add({ severity: 'success', summary: 'Successful', detail: 'Document Deleted', life: 3000 })
 }
 
@@ -242,12 +250,13 @@ const deleteDocuments = async () => {
 const saveDocuments = async () => {
   newDocument.value.content = DOMPurify.sanitize(newDocument.value.content)
   try {
-    const response = await setDoc(doc(collection(db, 'knowledgeHub')), newDocument.value)
+    const response = await axios.post('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/addKnowledgeHubDoc', newDocument.value);
     toast.add({ severity: 'success', summary: 'Successful', detail: 'Document Added', life: 3000 })
     hideDialog()
-    updateFromLocalStorage()
+    getDocumentCount()
   } catch (error) {
-    toast.add({ severity: 'success', summary: 'Successful', detail: error.message, life: 3000 })
+    toast.add({ severity: 'danger', summary: 'Failed', detail: error.message, life: 3000 })
+    console.error('Error adding document: ', error);
   }
 }
 </script>

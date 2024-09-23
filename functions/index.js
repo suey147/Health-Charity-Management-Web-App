@@ -6,48 +6,50 @@
  *
  * See a full list of supported triggers at https://firebase.google.com/docs/functions
  */
-import createNewDocument from "@/models/knowledgeHubDocument";
-const {onRequest} = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
-// const {onDocumentCreated} = require("firebase-functions/v2/firestore");
 const cors = require("cors")({origin: true});
-// const logger = require("firebase-functions/logger");
+const {onRequest} = require("firebase-functions/v2/https");
 
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
+admin.initializeApp();
 
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
-
-exports.manageKnowledeHub = onRequest((req, res) => {
+exports.getKnowledgeHubDoc = onRequest((req, res) => {
   cors(req, res, async () => {
     try {
-      // check and create knowledgeHub collection if it does not exist
-      const knowledgeHubCollection = admin.firestore().collection("books");
-      const knowledgeHubSnapshot = await knowledgeHubCollection.get();
+      const docCollection = admin.firestore().collection("knowledgeHub");
+      const snapshot = await docCollection.get();
+      const documents = snapshot.docs.map((doc) => ({
+        id: doc.id, ...doc.data()}));
 
-      if (knowledgeHubCollection) {
-        const newDocRef = admin.firestore().collection("knowledgeHub").doc();
-        await newDocRef.set(createNewDocument());
-        console.log("knowledgeHub collection initialized.");
-      } else {
-        console.log("knowledgeHub collection already exists.");
-      }
-
-      // Fetch all documents from the knowledgeHub Collection
-      const knowledgeHubDocs = [];
-      knowledgeHubSnapshot.forEach((doc) => {
-        knowledgeHubDocs.push({id: doc.id, ...doc.data()});
-      });
-
-      res.status(200).json({
-        knowledgeHubDocuments: knowledgeHubDocs,
-      });
+      res.status(200).send(documents);
     } catch (error) {
       console.error("Error counting books: ", error.message);
       res.status(500).send("Error counting books");
+    }
+  });
+});
+
+exports.addKnowledgeHubDoc = onRequest((req, res) => {
+  cors(req, res, async () => {
+    try {
+      const docCollection = admin.firestore().collection("knowledgeHub");
+      const response = await docCollection.add(req.body);
+      res.status(200).send(response);
+    } catch (error) {
+      console.error("Error adding books: ", error.message);
+      res.status(500).send("Error adding books");
+    }
+  });
+});
+
+exports.removeKnowledgeHubDoc = onRequest((req, res) => {
+  cors(req, res, async () => {
+    try {
+      const docRef = admin.firestore().collection("knowledgeHub").doc(req.body.id);
+      const response = await docRef.delete();
+      res.status(200).send(response);
+    } catch (error) {
+      console.error("Error adding books: ", error.message);
+      res.status(500).send("Error adding books");
     }
   });
 });

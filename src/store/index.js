@@ -27,6 +27,7 @@ const authState = createStore({
             state.isAuthenticated = payload.isAuthenticated;
             state.role = payload.role;
             state.currentUser = payload.currentUser;
+            console.log(state.role, state.currentUser)
             sessionStorage.setItem("isLoggedIn", state.isAuthenticated);
             sessionStorage.setItem("role", state.role );
             sessionStorage.setItem("currentUser", state.currentUser);
@@ -74,7 +75,9 @@ const authState = createStore({
          * @param {Object} state - The current state.
          * @returns {boolean} True if the user is an admin, false otherwise.
          */
-        isAdmin(state){return state.role == 'admin'}
+        isAdmin(){
+            return sessionStorage.getItem("role") == 'admin'
+        }
     }
 });
 

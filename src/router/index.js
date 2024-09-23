@@ -158,7 +158,6 @@ router.beforeEach((to, from) => {
     const userRole = authState.getters.userRole;
 
     // check if route requires authentication
-    console.log(isAuthenticated)
     if (to.meta.requiresAuth && !isAuthenticated){
         console.log("login required")
         if (to.path.startsWith('/knowledge-hub/document'))
