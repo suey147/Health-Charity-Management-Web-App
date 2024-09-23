@@ -31,7 +31,6 @@
   import { ref, computed } from 'vue';
   import { useRoute } from 'vue-router';
   import { defineProps } from 'vue';
-  import {}
   /**
    * Props passed to the component.
    * @type {Object}
