@@ -22,8 +22,9 @@
                     <DataTable :value="slotProps.data.documents" @rowClick="onRowClick">
                         <Column field="title" header="Title" sortable></Column>
                         <Column field="date" header="Date" sortable></Column>
-                        <Column header="Reviews">
+                        <Column field="rating" header="Reviews">
                             <template #body="rating">
+                                <Rating :modelValue="rating.data.rating[0]"/>
                                 {{ rating.data.rating[0] }}
                             </template>
                         </Column>
@@ -48,6 +49,7 @@
     import Column from "primevue/column";
     import router from '@/router/index.js';
     import { FilterMatchMode } from "@primevue/core/api"
+    import Rating from 'primevue/rating';
 
     /**
      * Reactive reference to store documents.

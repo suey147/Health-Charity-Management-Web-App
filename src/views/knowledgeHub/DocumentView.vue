@@ -28,7 +28,7 @@
 
 <script setup>
   import RatingForm from './RatingForm.vue';
-  import { ref, computed } from 'vue';
+  import { computed } from 'vue';
   import { useRoute } from 'vue-router';
   import { defineProps } from 'vue';
   /**
@@ -36,7 +36,7 @@
    * @type {Object}
    * @property {string} id - The ID of the document.
    */
-  const props = defineProps({
+  defineProps({
     id: {
         type: String,
     }

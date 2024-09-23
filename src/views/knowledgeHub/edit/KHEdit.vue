@@ -129,6 +129,7 @@ import '@vueup/vue-quill/dist/vue-quill.snow.css'
 import DOMPurify from 'dompurify'
 import { collection, doc, setDoc, deleteDoc } from 'firebase/firestore'
 import { db } from '../../../firebase'
+import createNewDocument from '../../../models/knowledgeHubDocument'
 /**
  * Toast instance for displaying notifications.
  */
@@ -153,14 +154,7 @@ const deleteDocDialog = ref(false)
 /**
  * Reactive reference for a new document.
  */
-const newDocument = ref({
-  title: '',
-  author: '',
-  date: '',
-  content: '',
-  category: '',
-  rating: [0, 0]
-})
+const newDocument =  createNewDocument();
 
 /**
  * Reactive reference for document categories.
