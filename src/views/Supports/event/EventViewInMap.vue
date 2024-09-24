@@ -1,5 +1,4 @@
 <template>
-  <h1 class="text-center">Events</h1>
   <div ref="mapContainerRef" class="map-container"></div>
 </template>
 
@@ -24,6 +23,6 @@ onMounted(() => {
 .map-container {
   flex: 1;
   width: 100%;
-  height: 400px;
+
 }
 </style>

@@ -1,17 +1,24 @@
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import 'bootstrap-icons/font/bootstrap-icons.min.css'
+import "primeicons/primeicons.css";
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 import router from './router'
 import { createApp } from 'vue'
 import App from './App.vue'
-import PrimeVue from 'primevue/config'
+
 import ToastService from 'primevue/toastservice'
-import Aura from '@primevue/themes/aura'
+import Lara from '@primevue/themes/lara'
 import store from './store'
 import DialogService from 'primevue/dialogservice'
 
+// primevue
+import PrimeVue from 'primevue/config'
+import Button from 'primevue/button';
+import ToggleButton from 'primevue/togglebutton';
+import Toolbar from 'primevue/toolbar';
+import SelectButton from 'primevue/selectbutton';
 /**
  * Initializes and mounts the Vue application.
  */
@@ -24,7 +31,7 @@ const app = createApp(App)
  */
 app.use(PrimeVue, {
   theme: {
-    preset: Aura
+    preset: Lara
   }
 })
 
@@ -52,6 +59,10 @@ app.use(store)
  */
 app.use(DialogService)
 
+app.component('Button', Button);
+app.component('ToggleButton', ToggleButton);
+app.component('Toolbar', Toolbar);
+app.component('SelectButton', SelectButton);
 /**
  * Mounts the Vue application to the DOM.
  * @param {string} selector - The CSS selector for the mount point.

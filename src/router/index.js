@@ -13,10 +13,10 @@ import DonationPaymenView from '@/views/About/DonationPaymenView.vue';
 // Supports
 import ForumView from '@/views/Supports/ForumView.vue';
 import SupportGroupView from '@/views/Supports/SupportGroupView.vue';
-import EventView from '@/views/Supports/EventView.vue';
+import EventView from '@/views/Supports/event/EventView.vue';
 import LoginView from '@/views/Auth/LoginView.vue';
 import RegisterView from '@/views/Auth/RegisterView.vue';
-import EventViewInMap from '@/views/Supports/EventViewInMap.vue';
+import EventViewInMap from '@/views/Supports/event/EventViewInMap.vue';
 
 // KnowledgeHub
 import DocumentView from '@/views/knowledgeHub/DocumentView.vue';

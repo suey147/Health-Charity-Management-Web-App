@@ -1,7 +1,10 @@
 <template>
     <h1 class="text-center">Knowledge Hub</h1>
     <div class="col-md-8 col-8 offset-2 offset-md-2">
-        <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" v-model="filters['global'].value">
+        <div class="input-group mb-3">
+            <span class="input-group-text pi pi-search" id="basic-addon1"></span>
+            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="pi-search" v-model="filters['global'].value">
+        </div>
 
         <DataTable v-model:expandedRows="expandedRows" :value="docs" dataKey="id"
                 @rowExpand="onRowExpand" @rowCollapse="onRowCollapse" v-if="!isSearching">

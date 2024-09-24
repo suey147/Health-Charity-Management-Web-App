@@ -12,24 +12,13 @@
             <!-- One time or monthly -->
             <div class="row mb-3">
                 <div class="col-md-12 col-sm-12 col-12 text-center">
-                    <button type="button" class="btn btn-primary custom-radius" data-bs-toggle="button" :class="['btn', isOneTimeActive ? 'btn-primary' : 'btn-secondary']" @click="oneTimeActive">One-time</button>
-                    <button type="button" class="btn btn-primary custom-radius" data-bs-toggle="button" :class="['btn', isMonthlyActive ? 'btn-primary' : 'btn-secondary']" @click="monthlyActive">Monthly</button>
+                    <SelectButton v-model="value" :options="paymentTime" aria-labelledby="basic" severity="success"/>
                 </div>
+                  
             </div>
             <div class="row mb-3">
                 <div class="col-md-12 col-sm-12 col-12  text-center">
-                  <div class="btn-group" role="group" aria-label="radio toggle button group">
-                    <input type="radio" class="btn-check" name="vbtn-radio" id="donate-30" autocomplete="off" checked>
-                    <label class="btn btn-outline-primary" for="donate-30">$30</label>
-                    <input type="radio" class="btn-check" name="vbtn-radio" id="donate-50" autocomplete="off">
-                    <label class="btn btn-outline-primary" for="donate-50">$50</label>
-                    <input type="radio" class="btn-check" name="vbtn-radio" id="donate-100" autocomplete="off">
-                    <label class="btn btn-outline-primary" for="donate-100">$100</label>
-                    <input type="radio" class="btn-check" name="vbtn-radio" id="donate-200" autocomplete="off">
-                    <label class="btn btn-outline-primary" for="donate-200">$200</label>
-                    <input type="radio" class="btn-check" name="vbtn-radio" id="donate-500" autocomplete="off">
-                    <label class="btn btn-outline-primary" for="donate-500">$500</label>
-                  </div>
+                  <SelectButton v-model="value" :options="donateValue" aria-labelledby="basic" />
                 </div>
             </div>
             <div class="row mb-3">
@@ -97,19 +86,10 @@
   import { ref } from "vue";
   import router from "@/router";
   import Toast from "primevue/toast";
-  const isMonthlyActive = ref(false);
-  const isOneTimeActive = ref(false);
 
-  const oneTimeActive = () => {
-    isMonthlyActive.value = false;
-    isOneTimeActive.value = true;
-  }
-
-  const monthlyActive = () => {
-    isMonthlyActive.value = true;
-    isOneTimeActive.value = false;
-  }
-
+  const value = ref('One-time');
+  const paymentTime = ref(['One-time', 'Monthly']);
+  const donateValue = ref(['30', '50', '100', '200', '500']);
   const formData = ref({
     customAmount: null,
     fname: "",

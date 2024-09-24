@@ -17,13 +17,15 @@ exports.getKnowledgeHubDoc = onRequest((req, res) => {
     try {
       const docCollection = admin.firestore().collection("knowledgeHub");
       const snapshot = await docCollection.get();
+      if (snapshot.empty) {
+        return res.status(500).send("No events");
+      }
       const documents = snapshot.docs.map((doc) => ({
         id: doc.id, ...doc.data()}));
-
       res.status(200).send(documents);
     } catch (error) {
-      console.error("Error counting books: ", error.message);
-      res.status(500).send("Error counting books");
+      console.error("Error getting knowledgeHub: ", error.message);
+      res.status(500).send("Error getting knowledgeHub");
     }
   });
 });
@@ -44,12 +46,31 @@ exports.addKnowledgeHubDoc = onRequest((req, res) => {
 exports.removeKnowledgeHubDoc = onRequest((req, res) => {
   cors(req, res, async () => {
     try {
-      const docRef = admin.firestore().collection("knowledgeHub").doc(req.body.id);
+      const id = req.body.id;
+      const docRef = admin.firestore().collection("knowledgeHub").doc(id);
       const response = await docRef.delete();
       res.status(200).send(response);
     } catch (error) {
       console.error("Error adding books: ", error.message);
       res.status(500).send("Error adding books");
+    }
+  });
+});
+
+exports.getEvents = onRequest((req, res) => {
+  cors(req, res, async () => {
+    try {
+      const docCollection = admin.firestore().collection("events");
+      const snapshot = await docCollection.limit(1).get();
+      if (snapshot.empty) {
+        return res.status(500).send("No events");
+      }
+      const documents = snapshot.docs.map((doc) => ({
+        id: doc.id, ...doc.data()}));
+      res.status(200).send(documents);
+    } catch (error) {
+      console.error("Error getting events: ", error.message);
+      res.status(500).send("Error getting events");
     }
   });
 });
