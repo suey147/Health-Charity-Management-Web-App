@@ -65,8 +65,8 @@ exports.getEvents = onRequest((req, res) => {
       if (snapshot.empty) {
         return res.status(500).send("No events");
       }
-      const documents = snapshot.docs.map((doc) => ({
-        id: doc.id, ...doc.data()}));
+      const documents = snapshot.docs.map((doc) => (
+        {id: doc.id, ...doc.data()}));
       res.status(200).send(documents);
     } catch (error) {
       console.error("Error getting events: ", error.message);
