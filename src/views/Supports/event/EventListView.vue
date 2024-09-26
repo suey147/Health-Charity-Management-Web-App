@@ -14,7 +14,7 @@
             </SelectButton>
         </div>
         <DataTable v-model:filters="filters" :value="docs" paginator :rows="10" dataKey="id" filterDisplay="menu" :loading="loading"
-        :globalFilterFields="['name', 'date']">
+        :globalFilterFields="['name', 'date']" v-if="layout == 'list'">
             <!-- Event Image -->
             <Column field="image" style="width: 25%">
             <template #body="slotProps">
@@ -69,12 +69,12 @@
             </Column>
         </DataTable>
         <!-- Event Map -->
-        <div id="mapContainerRef" style="width: 100%;" class="position-relative"></div>
+        <div ref="mapContainerRef" class="map-container"  v-show="layout == 'map'"></div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import axios from 'axios'
@@ -84,15 +84,14 @@ import InputIcon from 'primevue/inputicon';
 import IconField from 'primevue/iconfield';
 import DatePicker from 'primevue/datepicker';
 import mapboxgl from 'mapbox-gl'
-import Toolbar from 'primevue/toolbar';
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoic3VleWhvIiwiYSI6ImNrbGkyemhlcTRlbjIydnBlN3lvczI5NWsifQ.G9H734iySPGG2ZiJds8kTw';
-const mapContainerRef = ref(null);
-const options = ref(['list', 'grid']);
-const layout = ref('grid');
+const options = ref(['list', 'map']);
+const layout = ref('list');
 const loading = ref(true);
-
 const filters = ref();
+const mapContainerRef = ref(null);
+let mapInstance = null; // To store the map instance
 const initFilters = () => {
     filters.value = {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -101,6 +100,25 @@ const initFilters = () => {
     address: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
 }};
 initFilters();
+
+const initMap = () => {
+    if (mapContainerRef.value && !mapInstance){
+        mapInstance  = new mapboxgl.Map({
+            container: mapContainerRef.value,
+            style: "mapbox://styles/mapbox/streets-v12", // Replace with your preferred map style
+            center: [-71.224518, 42.213995],
+            zoom: 9,
+        });
+
+        setTimeout(() => {
+          if (mapInstance) {
+            mapInstance.resize(); // Resize the map after a short delay
+          }
+        }, 100);
+    } else {
+        console.error('Map container not found!');
+    }
+}
 /**
  * Reactive reference to store documents.
  */
@@ -110,14 +128,20 @@ const docs = ref()
  * @function onMounted
  */
 onMounted(() => {
-  getEvents();
-  new mapboxgl.Map({
-        container: "mapContainerRef",
-        style: "mapbox://styles/mapbox/streets-v12", // Replace with your preferred map style
-        center: [-71.224518, 42.213995],
-        zoom: 9,
-  });
+    getEvents();
+    if (layout.value === 'map') {
+        initMap();
+    }
 })
+
+watch( layout, (newLayout) => {
+    if (newLayout == 'map'){
+        initMap();
+    } else if (mapInstance) {
+        mapInstance.resize(); // Resize the map when switching to a different layout
+    }
+}
+);
 
 const getEvents = async () => {
   try {
@@ -159,5 +183,8 @@ const formatDate = (value) => {
   padding: 12px 20px 8px 20px;
   text-transform: uppercase;
 }
-
+.map-container {
+    width: 100%;
+    height: 70vh; 
+}
 </style>
