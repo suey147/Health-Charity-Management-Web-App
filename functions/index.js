@@ -61,7 +61,7 @@ exports.getEvents = onRequest((req, res) => {
   cors(req, res, async () => {
     try {
       const docCollection = admin.firestore().collection("events");
-      const snapshot = await docCollection.limit(1).get();
+      const snapshot = await docCollection.get();
       if (snapshot.empty) {
         return res.status(500).send("No events");
       }

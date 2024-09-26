@@ -16,7 +16,6 @@ import SupportGroupView from '@/views/Supports/SupportGroupView.vue';
 import EventView from '@/views/Supports/event/EventListView.vue';
 import LoginView from '@/views/Auth/LoginView.vue';
 import RegisterView from '@/views/Auth/RegisterView.vue';
-import EventViewInMap from '@/views/Supports/event/EventViewInMap.vue';
 
 // KnowledgeHub
 import DocumentView from '@/views/knowledgeHub/DocumentView.vue';
@@ -76,11 +75,6 @@ const routes = [
                 path: 'events',
                 name: 'Events',
                 component: EventView,
-            },
-            {
-                path: 'events-map',
-                name: 'Events-map',
-                component: EventViewInMap,
             },
             {
                 path: 'forum',

@@ -61,7 +61,7 @@
             <Column :exportable="false" style="width: 25%">
             <template #body="slotProps">
                 <div class="d-flex gap-2 justify-content-end">
-                    <button class="btn btn-primary mr-2" @click="$event.stopPropagation()">Read more</button>
+                    <button class="btn btn-primary mr-2" @click="visible = true, selectedEvent=slotProps.data, $event.stopPropagation()">Read more</button>
                     <Button icon="pi pi-heart" outlined></Button>
                 </div>
 
@@ -71,6 +71,25 @@
         <!-- Event Map -->
         <div ref="mapContainerRef" class="map-container"  v-show="layout == 'map'"></div>
     </div>
+
+
+    <Dialog v-model:visible="visible" modal :value="selectedEvent" header="Event Details" :style="{ width: '25rem'}">
+
+        <img alt="user header" :src='selectedEvent.image' style="max-width: 100%; max-height: 100%; object-fit: cover; overflow: hidden"/>
+
+        <li class="list-unstyled">
+            <i class="pi pi-clock margin-10px-right"></i><span>Time:</span>{{ selectedEvent.time }}
+        </li>
+        <li class="list-unstyled">
+            <i class="pi pi-map-marker margin-5px-right"></i><span>Address:</span>{{ selectedEvent.addr }}
+        </li>
+        <template #footer>
+            <div class="d-flex gap-4 mt-1">
+                <Button label="Direction" severity="primary" class="w-full" />
+                <Button label="Register" class="w-full" />
+            </div>
+        </template>
+    </Dialog>
 </template>
 
 <script setup>
@@ -83,6 +102,7 @@ import InputText from 'primevue/inputtext';
 import InputIcon from 'primevue/inputicon';
 import IconField from 'primevue/iconfield';
 import DatePicker from 'primevue/datepicker';
+import Dialog from 'primevue/dialog';
 import mapboxgl from 'mapbox-gl'
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
@@ -94,6 +114,8 @@ const loading = ref(true);
 const filters = ref();
 const mapContainerRef = ref(null);
 const mapInstance = ref(null); // To store the map instance
+const visible = ref(false);
+const selectedEvent = ref();
 const initFilters = () => {
     filters.value = {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -117,19 +139,18 @@ const initMap = () => {
             mapInstance.value.resize(); // Resize the map after a short delay
           }
         }, 100);
-
+        mapInstance.value.addControl(
+            new MapboxGeocoder({
+                    accessToken: mapboxgl.accessToken,
+                    mapboxgl: mapboxgl
+                })
+        );
         docs.value.forEach(address => {
             geocodeAddress(address.addr).then(coordinates => {
-                addMarker(mapInstance.value, coordinates);
+                addMarker(mapInstance.value, coordinates, address);
         });
 
-        mapInstance.value.addControl(
-        new MapboxGeocoder({
-                accessToken: mapboxgl.accessToken,
-                mapboxgl: mapboxgl
-            })
-        );
-      });
+        });
     } else {
         console.error('Map container not found!');
     }
@@ -152,8 +173,6 @@ onMounted(() => {
 watch( layout, (newLayout) => {
     if (newLayout == 'map'){
         initMap();
-    } else if (mapInstance) {
-        mapInstance.resize(); // Resize the map when switching to a different layout
     }
 }
 );
@@ -198,10 +217,13 @@ const geocodeAddress = async (address) => {
     }
 };
 
-const addMarker = (map, coordinates) => {
-    console.log(map, coordinates)
+const addMarker = (map, coordinates, placeInfo) => {
     const marker = new mapboxgl.Marker({
         color: "#FF0000"}).setLngLat(coordinates).addTo(map);
+    marker.getElement().addEventListener('click', () => {
+        selectedEvent.value = placeInfo;
+        visible.value = true
+    });
 };
 </script>
 
