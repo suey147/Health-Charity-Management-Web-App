@@ -5,7 +5,7 @@
                 <InputIcon>
                     <i class="pi pi-search" />
                 </InputIcon>
-                <InputText v-model="filters['global'].value" placeholder="Keyword Search" />
+                <InputText v-if="layout == 'list'" v-model="filters['global'].value" placeholder="Keyword Search" />
             </IconField>
             <SelectButton v-model="layout" :options="options" :allowEmpty="false">
                 <template #option="{ option }">
@@ -84,6 +84,8 @@ import InputIcon from 'primevue/inputicon';
 import IconField from 'primevue/iconfield';
 import DatePicker from 'primevue/datepicker';
 import mapboxgl from 'mapbox-gl'
+import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
+import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoic3VleWhvIiwiYSI6ImNrbGkyemhlcTRlbjIydnBlN3lvczI5NWsifQ.G9H734iySPGG2ZiJds8kTw';
 const options = ref(['list', 'map']);
@@ -91,7 +93,7 @@ const layout = ref('list');
 const loading = ref(true);
 const filters = ref();
 const mapContainerRef = ref(null);
-let mapInstance = null; // To store the map instance
+const mapInstance = ref(null); // To store the map instance
 const initFilters = () => {
     filters.value = {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -102,19 +104,32 @@ const initFilters = () => {
 initFilters();
 
 const initMap = () => {
-    if (mapContainerRef.value && !mapInstance){
-        mapInstance  = new mapboxgl.Map({
+    if (mapContainerRef.value && !mapInstance.value){
+        mapInstance.value  = new mapboxgl.Map({
             container: mapContainerRef.value,
             style: "mapbox://styles/mapbox/streets-v12", // Replace with your preferred map style
-            center: [-71.224518, 42.213995],
+            center: [145.131, -37.9099],
             zoom: 9,
         });
 
         setTimeout(() => {
-          if (mapInstance) {
-            mapInstance.resize(); // Resize the map after a short delay
+          if (mapInstance.value) {
+            mapInstance.value.resize(); // Resize the map after a short delay
           }
         }, 100);
+
+        docs.value.forEach(address => {
+            geocodeAddress(address.addr).then(coordinates => {
+                addMarker(mapInstance.value, coordinates);
+        });
+
+        mapInstance.value.addControl(
+        new MapboxGeocoder({
+                accessToken: mapboxgl.accessToken,
+                mapboxgl: mapboxgl
+            })
+        );
+      });
     } else {
         console.error('Map container not found!');
     }
@@ -171,6 +186,22 @@ const formatDate = (value) => {
         month: '2-digit',
         year: 'numeric'
     });
+};
+
+const geocodeAddress = async (address) => {
+    try {
+        const response = await axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?country=au&limit=1&proximity=ip&types=address&access_token=${encodeURIComponent(mapboxgl.accessToken)}`);
+        const [longitude, latitude] = response.data.features[0].center;
+        return [longitude, latitude];
+    } catch (error) {
+        console.error('Error geocoding address:', error);
+    }
+};
+
+const addMarker = (map, coordinates) => {
+    console.log(map, coordinates)
+    const marker = new mapboxgl.Marker({
+        color: "#FF0000"}).setLngLat(coordinates).addTo(map);
 };
 </script>
 
