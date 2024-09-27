@@ -12,6 +12,9 @@
                     <i :class="[option === 'list' ? 'pi pi-bars' : 'pi pi-map']" />
                 </template>
             </SelectButton>
+            <button v-if="inNavigation" @click="closeNavigation" class="btn btn-danger">
+                Close Navigation
+            </button>
         </div>
         <DataTable v-model:filters="filters" :value="docs" paginator :rows="10" dataKey="id" filterDisplay="menu" :loading="loading"
         :globalFilterFields="['name', 'date']" v-if="layout == 'list'">
@@ -70,6 +73,7 @@
         </DataTable>
         <!-- Event Map -->
         <div ref="mapContainerRef" class="map-container"  v-show="layout == 'map'"></div>
+
     </div>
 
 
@@ -85,7 +89,7 @@
         </li>
         <template #footer>
             <div class="d-flex gap-4 mt-1">
-                <Button label="Direction" severity="primary" class="w-full" />
+                <Button label="Direction" severity="primary" class="w-full" @click="addNavigation(selectedEvent.coordinates)" />
                 <Button label="Register" class="w-full" />
             </div>
         </template>
@@ -106,6 +110,8 @@ import Dialog from 'primevue/dialog';
 import mapboxgl from 'mapbox-gl'
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
+import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions';
+import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css';
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoic3VleWhvIiwiYSI6ImNrbGkyemhlcTRlbjIydnBlN3lvczI5NWsifQ.G9H734iySPGG2ZiJds8kTw';
 const options = ref(['list', 'map']);
@@ -116,6 +122,9 @@ const mapContainerRef = ref(null);
 const mapInstance = ref(null); // To store the map instance
 const visible = ref(false);
 const selectedEvent = ref();
+const inNavigation = ref(false);
+const navigation = ref();
+const geocoderContainer = ref();
 const initFilters = () => {
     filters.value = {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -145,12 +154,13 @@ const initMap = () => {
                     mapboxgl: mapboxgl
                 })
         );
+        geocoderContainer.value = document.querySelector('.mapboxgl-ctrl-geocoder');
         docs.value.forEach(address => {
             geocodeAddress(address.addr).then(coordinates => {
                 addMarker(mapInstance.value, coordinates, address);
+            });
         });
 
-        });
     } else {
         console.error('Map container not found!');
     }
@@ -221,10 +231,36 @@ const addMarker = (map, coordinates, placeInfo) => {
     const marker = new mapboxgl.Marker({
         color: "#FF0000"}).setLngLat(coordinates).addTo(map);
     marker.getElement().addEventListener('click', () => {
-        selectedEvent.value = placeInfo;
-        visible.value = true
+        if (inNavigation.value == false){
+            placeInfo.coordinates = coordinates;
+            selectedEvent.value = placeInfo;
+            visible.value = true;
+        }
     });
 };
+
+const addNavigation = (destination) => {
+    visible.value = false;
+    inNavigation.value = true;
+    geocoderContainer.value.style.display = 'none'
+    navigation.value = new MapboxDirections({
+        accessToken: mapboxgl.accessToken
+    });
+    
+    mapInstance.value.addControl(
+        navigation.value, 'top-left'
+    ); 
+
+    navigation.value.setDestination([destination[0], destination[1]]);
+}
+const closeNavigation = () => {
+      if (navigation.value) {
+        // Clear the directions
+        inNavigation.value = false;
+        mapInstance.value.removeControl(navigation.value);
+        geocoderContainer.value.style.display = 'block';
+      }
+    }
 </script>
 
 <style scoped>
