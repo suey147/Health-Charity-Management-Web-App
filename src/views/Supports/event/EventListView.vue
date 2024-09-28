@@ -261,6 +261,15 @@ const closeNavigation = () => {
         geocoderContainer.value.style.display = 'block';
       }
     }
+    const registerEvent = async() => {
+        try {
+            const response = await axios.get('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/registerEvent');
+            
+        } catch (error) {
+            console.error('Error fetching book count: ', error);
+            this.error = error;
+        }
+    }
 </script>
 
 <style scoped>
