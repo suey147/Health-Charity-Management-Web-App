@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app'
-import { getFirestore, doc  } from "firebase/firestore";
+import { getFirestore, doc, connectFirestoreEmulator } from "firebase/firestore";
+import { connectAuthEmulator, getAuth } from 'firebase/auth';
 
 /**
  * Firebase configuration object.
@@ -17,13 +18,19 @@ const firebaseConfig = {
  * Initializes the Firebase application with the provided configuration.
  */
 const firebaseApp = initializeApp(firebaseConfig);
-export default firebaseApp
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
 
+if (window.location.hostname === "localhost") {
+  connectAuthEmulator(auth, "http://127.0.0.1:9099");
+  connectFirestoreEmulator(db, 'localhost', 8080);
+}
+export default firebaseApp
 
 /**
  * Firestore database instance.
  */
-export const db = getFirestore(firebaseApp)
+export {db};
 
 /**
  * Reference to the 'knowledgeHub' collection and 'documents' document in Firestore.

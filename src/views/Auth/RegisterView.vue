@@ -209,14 +209,18 @@ const addUser = async () => {
  */
 const handleRegister = async (userData) => {
   try {
-    const response = await axios.post('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/registerUser',  userData);
-    if(response){
+    createUserWithEmailAndPassword(auth, userData.email, userData.password)
+    .then(async (data) => {
+      console.log("Firebase Register Successful!")
+      await setDoc(doc(db, 'Users', data.user.uid), userData);
       toast.add({ severity: 'success', summary: 'Register successfully' })
       const redirect = router.currentRoute.value.query.redirect || { name: 'Home' }
       router.push(redirect)
-    }
+    })
+
   } catch (error) {
-      console.error('Error fetching book count: ', error);}
+    toast.add({ severity: 'danger', summary: 'Register failed' })
+  }
 }
 /**
  * Validates the username field.

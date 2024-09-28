@@ -90,7 +90,7 @@
         <template #footer>
             <div class="d-flex gap-4 mt-1">
                 <Button label="Direction" severity="primary" class="w-full" @click="addNavigation(selectedEvent.coordinates)" />
-                <Button label="Register" class="w-full" />
+                <Button label="Register" class="w-full" @click="registerEvent(selectedEvent.id)"/>
             </div>
         </template>
     </Dialog>
@@ -112,6 +112,7 @@ import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions';
 import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css';
+import { useStore } from 'vuex';
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoic3VleWhvIiwiYSI6ImNrbGkyemhlcTRlbjIydnBlN3lvczI5NWsifQ.G9H734iySPGG2ZiJds8kTw';
 const options = ref(['list', 'map']);
@@ -125,6 +126,7 @@ const selectedEvent = ref();
 const inNavigation = ref(false);
 const navigation = ref();
 const geocoderContainer = ref();
+const store = useStore();
 const initFilters = () => {
     filters.value = {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -261,15 +263,16 @@ const closeNavigation = () => {
         geocoderContainer.value.style.display = 'block';
       }
     }
-    const registerEvent = async() => {
-        try {
-            const response = await axios.get('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/registerEvent');
-            
-        } catch (error) {
-            console.error('Error fetching book count: ', error);
-            this.error = error;
-        }
+const registerEvent = async(eventId) => {
+    try {
+        const userId = store.getters.currentUser;
+        const response = await axios.post('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/registerEvent', {userId: userId,eventId: eventId });
+        visible.value = false;
+    } catch (error) {
+        console.error('Error register event: ', error);
+        this.error = error;
     }
+}
 </script>
 
 <style scoped>

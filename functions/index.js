@@ -80,39 +80,23 @@ exports.getEvents = onRequest((req, res) => {
 
 exports.registerEvent = onRequest((req, res) => {
   cors(req, res, async () => {
-    const {userId, registeredEvent} = req.body;
+    const {userId, eventId} = req.body;
     try {
       const firebase = admin.firestore();
-      const eventRef = firebase.collection("events").doc(registeredEvent);
-      const docRef = admin.firestore().collection("users").doc(userId);
-      const response = await docRef.update({events:
-        FieldValue.arrayUnion(eventRef)});
-      res.status(200).send(response);
+      // Add user to events
+      const eventRef = firebase.collection("events").doc(eventId);
+      const userRef = firebase.collection("Users").doc(userId);
+
+      const addToUserRes = await userRef.update({
+        registeredEvents: FieldValue.arrayUnion(eventRef)});
+      // Add to user's registered events
+      const addToEventRes= await eventRef.update({
+        registeredUsers: FieldValue.arrayUnion(userRef)});
+      res.status(200).send({addToUserRes, addToEventRes});
     } catch (error) {
       console.error("Error registering event: ", error.message);
       res.status(500).send("Error registering event");
     }
-  });
-});
-
-exports.registerUser = onRequest((req, res) => {
-  cors(req, res, async () => {
-    const userdata = req.body;
-    const email = userdata.email;
-    const password = userdata.password;
-    console.log(userdata);
-    admin.auth().createUser({
-      email: email,
-      password: password})
-        .then(async (UserRecord) => {
-          const docCollection = admin.firestore().collection("Users");
-          const response =await docCollection.doc(UserRecord.uid).set(userdata);
-          res.status(200).send(response);
-        })
-        .catch((error) => {
-          console.error("Error create new user: ", error.message);
-          res.status(500).send("Error creating new user");
-        });
   });
 });
 
