@@ -1,39 +1,44 @@
 <template>
     <div class="card col-md-8 col-8 offset-2 offset-md-2">
-        <div class="d-flex justify-content-end">
-            <IconField>
-                <InputIcon>
-                    <i class="pi pi-search" />
-                </InputIcon>
-                <InputText v-if="layout == 'list'" v-model="filters['global'].value" placeholder="Keyword Search" />
-            </IconField>
-            <SelectButton v-model="layout" :options="options" :allowEmpty="false">
-                <template #option="{ option }">
-                    <i :class="[option === 'list' ? 'pi pi-bars' : 'pi pi-map']" />
-                </template>
-            </SelectButton>
-            <button v-if="inNavigation" @click="closeNavigation" class="btn btn-danger">
-                Close Navigation
-            </button>
+        <div class="d-flex justify-content-between align-items-center">
+            <div style="text-align: left" class="justify-content-start">
+                <Button icon="pi pi-external-link" label="Export" @click="exportCSV($event)" />
+            </div>
+            <div class="d-flex justify-content-end">
+                <IconField>
+                    <InputIcon>
+                        <i class="pi pi-search" />
+                    </InputIcon>
+                    <InputText v-if="layout == 'list'" v-model="filters['global'].value" placeholder="Keyword Search" />
+                </IconField>
+                <SelectButton v-model="layout" :options="options" :allowEmpty="false">
+                    <template #option="{ option }">
+                        <i :class="[option === 'list' ? 'pi pi-bars' : 'pi pi-map']" />
+                    </template>
+                </SelectButton>
+                <button v-if="inNavigation" @click="closeNavigation" class="btn btn-danger">
+                    Close Navigation
+                </button>
+            </div>
         </div>
-        <DataTable v-model:filters="filters" :value="docs" paginator :rows="10" dataKey="id" filterDisplay="menu" :loading="loading"
+        <DataTable v-model:filters="filters" :value="docs" ref="dt" :rows="10" dataKey="id" filterDisplay="menu" :loading="loading"
         :globalFilterFields="['name', 'date']" v-if="layout == 'list'">
             <!-- Event Image -->
             <Column field="image" style="width: 25%">
-            <template #body="slotProps">
-                <div
-                class="relative mx-auto position-relative container d-none d-lg-block position-relative img-fluid"
-                >
-                <div class="events-date">
-                    <div class="font-size28">{{ slotProps.data.date.getDate() }}</div>
-                    <div class="font-size14">{{ slotProps.data.date.toLocaleString('default', { month: 'long' }) }}</div>
-                </div>
-                <img :src="slotProps.data.image" width="200" />
-                </div>
-            </template>
+                <template #body="slotProps">
+                    <div
+                    class="relative mx-auto position-relative container d-none d-lg-block position-relative img-fluid"
+                    >
+                    <div class="events-date">
+                        <div class="font-size28">{{ slotProps.data.date.getDate() }}</div>
+                        <div class="font-size14">{{ slotProps.data.date.toLocaleString('default', { month: 'long' }) }}</div>
+                    </div>
+                    <img :src="slotProps.data.image" width="200" />
+                    </div>
+                </template>
             </Column>
             <!-- Event details -->
-            <Column header="Name" filterField="name" style="min-width: 12rem">
+            <Column header="Name" filterField="name" field="name" style="min-width: 12rem">
                 <template #body="{ data }">
                     <span>{{ data.name }}</span>
                 </template>
@@ -42,7 +47,7 @@
                 </template>
             </Column>
 
-            <Column header="Date" filterField="date" style="min-width: 10rem">
+            <Column header="Date" filterField="date" field="date" style="min-width: 10rem">
                 <template #body="{ data }">
                     {{ formatDate(data.date) }}
                 </template>
@@ -51,7 +56,7 @@
                 </template>
             </Column>
 
-            <Column header="Address" filterField="address" dataType="date" style="min-width: 10rem">
+            <Column header="Address" filterField="address" field="address" dataType="date" style="min-width: 10rem">
                 <template #body="{ data }">
                     {{ data.addr}}
                 </template>
@@ -127,6 +132,7 @@ const inNavigation = ref(false);
 const navigation = ref();
 const geocoderContainer = ref();
 const store = useStore();
+const dt = ref();
 const initFilters = () => {
     filters.value = {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -273,6 +279,10 @@ const registerEvent = async(eventId) => {
         this.error = error;
     }
 }
+
+const exportCSV = () => {
+    dt.value.exportCSV();
+};
 </script>
 
 <style scoped>
