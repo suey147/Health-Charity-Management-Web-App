@@ -6,6 +6,8 @@
 const categorizedDocuments = (documents) => {
     const categorized = documents.reduce((acc, doc) => {
       const category = doc.category
+      const eventDate = new Date(doc.date._seconds * 1000 + doc.date._nanoseconds / 1000);
+      doc.date = eventDate;
       if (!acc[category]) {
         acc[category] = []
       }
@@ -18,7 +20,7 @@ const categorizedDocuments = (documents) => {
       documents: categorized[category]
     }))
     localStorage.setItem('documents', JSON.stringify(allDocs))
-    return JSON.stringify(allDocs);
+    return allDocs;
 }
 
 export default categorizedDocuments;

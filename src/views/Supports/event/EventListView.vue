@@ -1,5 +1,6 @@
 <template>
     <div class="card col-md-8 col-8 offset-2 offset-md-2">
+        <!-- toolbar -->
         <div class="d-flex justify-content-between align-items-center">
             <div style="text-align: left" class="justify-content-start">
                 <Button icon="pi pi-external-link" label="Export" @click="exportCSV($event)" />
@@ -21,8 +22,9 @@
                 </button>
             </div>
         </div>
+        <!-- Event List datatabe -->
         <DataTable v-model:filters="filters" :value="docs" ref="dt" :rows="10" dataKey="id" filterDisplay="menu" :loading="loading"
-        :globalFilterFields="['name', 'date']" v-if="layout == 'list'">
+        :globalFilterFields="['name', 'date', 'address']" v-if="layout == 'list'">
             <!-- Event Image -->
             <Column field="image" style="width: 25%">
                 <template #body="slotProps">
@@ -56,9 +58,9 @@
                 </template>
             </Column>
 
-            <Column header="Address" filterField="address" field="address" dataType="date" style="min-width: 10rem">
+            <Column header="Address" filterField="address" field="addr" style="min-width: 10rem">
                 <template #body="{ data }">
-                    {{ data.addr}}
+                    <span>{{ data.addr }}</span>
                 </template>
                 <template #filter="{ filterModel, filterCallback }">
                     <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Search by address" />
@@ -81,11 +83,9 @@
 
     </div>
 
-
+    <!-- Event detail dialog -->
     <Dialog v-model:visible="visible" modal :value="selectedEvent" header="Event Details" :style="{ width: '25rem'}">
-
         <img alt="user header" :src='selectedEvent.image' style="max-width: 100%; max-height: 100%; object-fit: cover; overflow: hidden"/>
-
         <li class="list-unstyled">
             <i class="pi pi-clock margin-10px-right"></i><span>Time:</span>{{ selectedEvent.time }}
         </li>
@@ -94,7 +94,7 @@
         </li>
         <template #footer>
             <div class="d-flex gap-4 mt-1">
-                <Button label="Direction" severity="primary" class="w-full" @click="addNavigation(selectedEvent.coordinates)" />
+                <Button label="Direction" severity="primary" class="w-full" @click="addNavigation(selectedEvent.coordinates)" v-if="layout=='List'"/>
                 <Button label="Register" class="w-full" @click="registerEvent(selectedEvent.id)"/>
             </div>
         </template>

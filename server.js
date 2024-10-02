@@ -1,16 +1,23 @@
 import express from 'express';
-import sgMail from '@sendgrid/mail';
-import dotenv from 'dotenv';
 import path from 'path'
-import { fileURLToPath } from 'url';
+import { google } from 'googleapis';
+import fs from 'fs/promises';
+// import process from 'process'
+import {authenticate} from '@google-cloud/local-auth';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-path.resolve(__dirname, '.env');
 const app = express();
 const port = 3000;
-dotenv.config({path: './.env'});
-sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+const router = express.Router();
+// Gmail API
+
+// If modifying these scopes, delete token.json.
+const SCOPES = [
+    'https://www.googleapis.com/auth/gmail.modify',
+    'https://www.googleapis.com/auth/gmail.send'
+];
+const TOKEN_PATH = path.join(process.cwd(), 'token.json');
+const CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
+
 
 app.get('/', (req, res) => {
     res.send('Hello from Node.js!');
@@ -20,22 +27,87 @@ app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
 
-app.post('/send-email', async (req, res) => {
-    const msg = {
-        to: 'sueysueyho147@gmail.com', // Change to your recipient
-        from: 'test@example.com', // Change to your verified sender
-        subject: 'Sending with SendGrid is Fun',
-        text: 'and easy to do anywhere, even with Node.js',
-        html: '<strong>and easy to do anywhere, even with Node.js</strong>',
-    }
 
+/**
+ * Reads previously authorized credentials from the save file.
+ *
+ * @return {Promise<OAuth2Client|null>}
+ */
+async function loadSavedCredentialsIfExist() {
     try {
-        const response = await sgMail.send(msg);
-        console.log(response)
-        res.status(200).send( {message: 'Email sent successfully'});
-    } catch (error) {
-        console.error(error);
-        console.error(error.response.body.errors);
-        res.status(500).send({ message: 'An error occurred while sending the email'});
+        const content =await fs.readFile(CREDENTIALS_PATH);
+        const credentials = JSON.parse(content);
+      return google.auth.fromJSON(credentials);
+    } catch (err) {
+      return null;
     }
-})
+  }
+  
+  /**
+   * Serializes credentials to a file compatible with GoogleAuth.fromJSON.
+   *
+   * @param {OAuth2Client} client
+   * @return {Promise<void>}
+   */
+  async function saveCredentials(client) {
+    const content = await fs.readFile(CREDENTIALS_PATH);
+    const keys = JSON.parse(content);
+    const key = keys.web;
+    const payload = JSON.stringify({
+      type: 'authorized_user',
+      client_id: key.client_id,
+      client_secret: key.client_secret,
+      refresh_token: client.credentials.refresh_token,
+    });
+    await fs.writeFile(TOKEN_PATH, payload);
+  }
+  
+  /**
+   * Load or request or authorization to call APIs.
+   *
+   */
+  async function authorize() {
+    let client = await loadSavedCredentialsIfExist();
+    if (client) {
+      return client;
+    }
+    client = await authenticate({
+      scopes: SCOPES,
+      keyfilePath: CREDENTIALS_PATH,
+    });
+    if (client.credentials) {
+      await saveCredentials(client);
+    }
+    return client;
+  }
+  
+  /**
+   * Lists the labels in the user's account.
+   *
+   * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
+   */
+  async function listLabels(auth) {
+    const gmail = google.gmail({version: 'v1', auth});
+    const res = await gmail.users.labels.list({
+      userId: 'me',
+    });
+    const labels = res.data.labels;
+    if (!labels || labels.length === 0) {
+      console.log('No labels found.');
+      return;
+    }
+    console.log('Labels:');
+    labels.forEach((label) => {
+      console.log(`- ${label.name}`);
+    });
+  }
+  
+app.get('/getEmail', (req, res) => {
+    authorize()
+    .then(
+        listLabels,
+        res.status(200)
+    )
+    .catch(console.error);
+    
+});
