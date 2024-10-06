@@ -273,7 +273,7 @@ const registerEvent = async(eventId) => {
     try {
         const userId = store.getters.currentUser;
         // const response = await axios.post('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/registerEvent', {userId: userId,eventId: eventId });
-        const send = await axios.get('http://localhost:3000/sendEmail');
+        const send = await axios.get('http://localhost:3000/getEmail');
         visible.value = false;
     } catch (error) {
         console.error('Error register event: ', error);
