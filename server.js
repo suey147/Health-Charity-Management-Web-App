@@ -2,6 +2,7 @@ import express from 'express';
 import path from 'path'
 import { google } from 'googleapis';
 import fs from 'fs/promises';
+import sfs from 'fs'
 // import process from 'process'
 import {authenticate} from '@google-cloud/local-auth';
 
@@ -80,21 +81,47 @@ async function loadSavedCredentialsIfExist() {
     }
     return client;
   }
-  
+
+  // Took https://stackoverflow.com/questions/50639036/send-mail-with-attachment-pdf-using-gmail-api as example
 async function sendEmail(auth) {
   const gmail = google.gmail({version: 'v1', auth});
+  const fileName = "A2BasicAppReport.pdf";
+  const attach = new Buffer.from(sfs.readFileSync("./"+fileName)).toString("base64");
+  const emailBody = 'My Email Message';
   const emailLines = [
+    'MIME-Version: 1.0',
     'From: hlau0017@student.monash.edu',
     'To: sueysueyho147@gmail.com',
-    'Content-type: text/html;charset=iso-8859-1',
-    'MIME-Version: 1.0',
     'Subject: Test Subject',
+    "Content-Type: multipart/mixed; boundary=012boundary01",
     '',
-    'This is a test email'
+
+    "--012boundary01",
+    "Content-Type: multipart/alternative; boundary=012boundary02",
+    '',
+
+    "--012boundary02",
+    "Content-type: text/html; charset=UTF-8", 
+    "Content-Transfer-Encoding: quoted-printable",
+    '',
+    emailBody,
+    '',
+    "--012boundary02--",
+    "--012boundary01",
+    "Content-Type: Application/pdf; name=A2BasicAppReport.pdf",
+    'Content-Disposition: attachment; filename=A2BasicAppReport.pdf',
+    "Content-Transfer-Encoding: base64",
+    '',
+    attach,
+    "--012boundary01--",
   ];
 
-  const email = emailLines.join('\r\n').trim();
-  const base64Email = Buffer.from(email).toString('base64');
+  const email = emailLines.join('\n');
+  const base64Email = Buffer.from(email)
+      .toString('base64')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
 
   try {
     const res = await gmail.users.messages.send({
