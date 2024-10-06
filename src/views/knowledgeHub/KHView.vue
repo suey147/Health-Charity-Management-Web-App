@@ -7,32 +7,13 @@
         </div>
 
         <DataTable v-model:expandedRows="expandedRows" :value="docs" dataKey="id"
-                @rowExpand="onRowExpand" @rowCollapse="onRowCollapse" v-if="!isSearching" filterDisplay="menu">
+                @rowExpand="onRowExpand" @rowCollapse="onRowCollapse" v-if="!isSearching">
             <template #header>
                 <div class="d-flex justify-content-end">
                     <button class="btn-light btn bi bi-plus" @click="expandAll">Expand All</button>
                     <button class="btn-light btn bi bi-dash" @click="collapseAll">Collapse All</button>
                     <RouterLink class="btn-light btn bi bi-gear" v-if="$store.getters.isAdmin" to="/knowledge-hub/edit"> Edit</RouterLink>
                     <button class="btn-light btn pi pi-filter" @click="toggle"></button>
-                    <Popover ref="ratingFilter" class="p-datatable-filter p-datatable-filter-overlay">
-                            <div class="d-flex flex-column p-4" style="width: 300px;">
-                                <h5 class="mb-3">Filter by Rating</h5>
-                                <Slider v-model="filters['rating'].value" :min="0" :max="5" range class="mb-3 p-datatable-filter-operator" ></Slider>
-                                <div class="d-flex justify-content-between">
-                                    <span>{{ filters['rating'].value ? filters['rating'].value[0] : 0 }}</span>
-                                    <span>{{ filters['rating'].value ? filters['rating'].value[1] : 5 }}</span>
-                                </div>
-                            </div>
-                            <div class="d-flex flex-column p-4" style="width: 300px;">
-                                <h5 class="mb-3">Filter by Date</h5>
-                                <IconField class="d-flex align-items-center p-datatable-filter-operator">
-                                    <InputIcon class="p-2">
-                                        <i class="pi pi-calendar"/>
-                                    </InputIcon>
-                                    <DatePicker v-model="filters['date'].value" dateFormat="mm/dd/yy" placeholder="mm/dd/yy"/>
-                                </IconField>
-                            </div>
-                    </Popover>
                 </div>
             </template>
 
@@ -42,17 +23,34 @@
             </template>
             <template #expansion="slotProps" >
                 <div class="p-4">
-                    <DataTable :value="slotProps.data.documents" :filters="filters" @rowClick="onRowClick" paginator :rows="10">
-                        <Column field="title" header="Title" sortable></Column>
-                        <Column field="date" header="Date" sortable>
+                    <DataTable v-if="slotProps.data.documents" v-model:filters="filters" :value="slotProps.data.documents" @rowClick="onRowClick" paginator :rows="10" filterDisplay="row">
+                        <Column field="title" filterField="title" header="Title" sortable>
+                            <template #body="{ data }">
+                                <span>{{ data.title }}</span>
+                            </template>
+                            <template #filter="{ filterModel, filterCallback }">
+                                <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Search by name" />
+                            </template>
+                        </Column>
+                        <Column field="date" filterField="date" header="Date" sortable>
                             <template #body="{ data }">
                                 {{ formatDate(data.date) }}
                             </template>
+                            <template #filter="{ filterModel }">
+                                <DatePicker v-model="filterModel.value" dateFormat="mm/dd/yy" placeholder="mm/dd/yyyy" />
+                            </template>
                         </Column>
-                        <Column field="rating" header="Reviews" sortable>
-                            <template #body="rating">
-                                <Rating :modelValue="rating.data.rating[0]"/>
-                                {{ rating.data.rating[0] }}
+                        <Column field="rating" filterField="rating" header="Reviews" :showFilterMenu="false" sortable>
+                            <template #body="{ data }">
+                                <Rating :modelValue="data.rating[0]"/>
+                                {{ data.rating[0] }}
+                            </template>
+                            <template #filter="{ filterModel, filterCallback }">
+                                <Select v-model="filterModel.value" @change="filterCallback()" :options="rate" placeholder="Select One" style="min-width: 12rem" :showClear="true">
+                                    <template #option="slotProps">
+                                        <Tag :value="slotProps.option" />
+                                    </template>
+                                </Select>
                             </template>
                         </Column>
                     </DataTable>
@@ -61,7 +59,6 @@
         </DataTable>
 
         <DataTable v-model:selection="docs" :filters="filters" :value="combinedDocuments" @rowClick="onRowClick" v-if="isSearching">
-            <!-- <Column field="id" header="Id" sortable></Column> -->
             <Column field="title" header="Title" sortable></Column>
             <Column field="date" header="Date" sortable></Column>
             <Column field="rating" header="Reviews" sortable></Column>
@@ -70,22 +67,19 @@
 </template>
 
 <script setup>
-    import { ref, onMounted, computed} from 'vue';
+    import { ref, onMounted, computed, watch} from 'vue';
     import { useToast } from 'primevue/usetoast';
     import DataTable from "primevue/datatable";
     import Column from "primevue/column";
     import router from '@/router/index.js';
-    import { FilterMatchMode } from "@primevue/core/api"
+    import { FilterMatchMode, FilterOperator } from "@primevue/core/api"
     import Rating from 'primevue/rating';
     import axios from 'axios';
     import categorizedDocuments from '../../utils/helper'
-    import DatePicker from 'primevue/datepicker'
-    import InputIcon from 'primevue/inputicon'
-    import IconField from 'primevue/iconfield'
-    import Slider from 'primevue/slider'
-    import Popover from 'primevue/popover';
-    import Menu from 'primevue/menu';
-
+    import DatePicker from 'primevue/datepicker';
+    import InputText from 'primevue/inputtext';
+    import Select from 'primevue/select';
+    import Tag from 'primevue/tag';
     /**
      * Reactive reference to store documents.
      */
@@ -98,7 +92,6 @@
      * Toast instance for displaying notifications.
      */
     const toast = useToast();
-    const ratingFilter = ref();
 
     /**
      * Lifecycle hook that runs when the component is mounted.
@@ -178,18 +171,23 @@
      * @returns {Array<Object>} The combined array of documents.
      */
     const combinedDocuments = computed(() => {
-            return docs.value.flatMap(category => category.documents);
+        return docs.value.flatMap(category => category.documents);
     });
-
+    const rate = ref(['5', '4', '3', '2', '1']);
     /**
      * Reactive reference to store filter settings.
      * @type {Object}
      */
-    const filters = ref({
-        global: {value: null, matchMode: FilterMatchMode.CONTAINS},
-        date: { value: null, matchMode: FilterMatchMode.DATE_IS },
-        rating: { value: [0, 5], matchMode: FilterMatchMode.BETWEEN },
-    });
+    const filters = ref();
+    const initFilters = () => {
+        filters.value = {
+            global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+            title: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+            date: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
+            rating: { value: null, matchMode: FilterMatchMode.EQUALS },
+        };
+    };
+    initFilters();
     
     /**
      * Computes whether the search input is not empty.
@@ -207,9 +205,13 @@
             year: 'numeric'
         });
     };
-    const toggle = (event) => {
-        ratingFilter.value.toggle(event);
-    }
+
+    watch(
+        () => filters.value.date.value,
+      (newValue, oldValue) => {
+        console.log(`Date filter changed from ${oldValue} to ${newValue}`);
+      }
+    );
 </script>
 
 <style scoped>

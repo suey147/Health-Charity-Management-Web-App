@@ -17,7 +17,11 @@
     <DataTable :value="docs" :filters="filters" @rowClick="onRowClick">
       <Column field="id" header="Id" sortable></Column>
       <Column field="title" header="Title" sortable></Column>
-      <Column field="date" header="Date" sortable></Column>
+      <Column field="date" header="Date" sortable>
+        <template #body="{ data }">
+            {{ formatDate(data.date) }}
+        </template>
+      </Column>
       <Column field="rating" header="Reviews"></Column>
       <Column :exportable="false" style="min-width: 12rem">
         <template #body="slotProps">
@@ -181,8 +185,7 @@ const getDocumentCount = async() => {
         const response = await axios.get('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/getKnowledgeHubDoc');
         const documents = response.data;
         const categorized = categorizedDocuments(documents);
-        const alldocs = JSON.parse(categorized); 
-        const all = alldocs.flatMap((category) => category.documents)
+        const all = categorized.flatMap((category) => category.documents)
         docs.value = all;
     } catch (error) {
         console.error('Error fetching book count: ', error);
@@ -259,6 +262,14 @@ const saveDocuments = async () => {
     console.error('Error adding document: ', error);
   }
 }
+
+const formatDate = (value) => {
+    return value.toLocaleDateString('en-AU', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+};
 </script>
 
 <style scoped></style>
