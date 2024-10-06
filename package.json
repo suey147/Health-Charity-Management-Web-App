@@ -12,8 +12,6 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "@emailjs/nodejs": "^4.0.4",
-    "@google-cloud/local-auth": "^2.1.0",
     "@mapbox/mapbox-gl-directions": "^4.3.1",
     "@mapbox/mapbox-gl-geocoder": "^5.0.3",
     "@primevue/themes": "^4.0.4",
@@ -24,7 +22,6 @@
     "cors": "^2.8.5",
     "dompurify": "^3.1.6",
     "dotenv": "^16.4.5",
-    "emailjs": "^4.0.3",
     "express": "^4.21.0",
     "firebase": "^10.13.0",
     "firebase-admin": "^12.5.0",
