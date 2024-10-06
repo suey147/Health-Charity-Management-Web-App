@@ -60,8 +60,17 @@
 
         <DataTable v-model:selection="docs" :filters="filters" :value="combinedDocuments" @rowClick="onRowClick" v-if="isSearching">
             <Column field="title" header="Title" sortable></Column>
-            <Column field="date" header="Date" sortable></Column>
-            <Column field="rating" header="Reviews" sortable></Column>
+            <Column field="date" header="Date" sortable>
+                <template #body="{ data }">
+                    {{ formatDate(data.date) }}
+                </template>
+            </Column>
+            <Column field="rating" header="Reviews" sortable>
+                <template #body="{ data }">
+                    <Rating :modelValue="data.rating[0]"/>
+                    {{ data.rating[0] }}
+                </template>
+            </Column>
         </DataTable>
     </div>
 </template>

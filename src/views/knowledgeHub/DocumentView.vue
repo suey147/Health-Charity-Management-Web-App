@@ -22,7 +22,6 @@
           </article>
         </div>
         <div class="col-md-3 order-md-2 mb-4">
-          
           <RatingForm :docId="selectedDocument.id"/>
         </div>
       </div>
@@ -68,12 +67,24 @@
   })
 
   const exportPDF = () => {
-    const doc = new jsPDF();
-    const canvasElement = document.createElement('canvas');
-    html2canvas(content.value, { canvas: canvasElement})
-      .then(function (canvas) {
-        const img = canvas.toDataURL("image/jpeg", 0.8);
-        doc.addImage(img,'JPEG',20,20);
+
+    html2canvas(content.value)
+      .then( (canvas) => {
+        const doc = new jsPDF('p', 'mm');
+        const imgWidth = 208;
+        const pageHeight = 295;
+        const imgHeight = (canvas.height * imgWidth)  / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 0;
+        heightLeft -= pageHeight;
+        // const img = canvas.toDataURL("image/png");
+        doc.addImage(canvas, "PNG", 0, position, imgWidth, imgHeight, '', 'FAST');
+        while (heightLeft >= 0) {
+          position = heightLeft - imgHeight;
+          doc.addPage();
+          doc.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight, '', 'FAST');
+          heightLeft -= pageHeight;
+        }
         doc.save("sample.pdf");
       })
   }
