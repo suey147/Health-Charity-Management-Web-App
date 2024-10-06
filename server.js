@@ -4,6 +4,7 @@ import { google } from 'googleapis';
 import fs from 'fs/promises';
 // import process from 'process'
 import {authenticate} from '@google-cloud/local-auth';
+import nodemailer from 'nodemailer'
 
 const app = express();
 const port = 3000;
@@ -110,4 +111,35 @@ app.get('/getEmail', (req, res) => {
     )
     .catch(console.error);
     
+});
+
+async function sendEmail(auth){
+  const gmail = google.gmail({version: 'v1', auth});
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'hlau0017@student.monash.edu', // Your email address
+      pass: 'nzkm mtqq mziq zdwz'
+    },
+  });
+
+  // Define the email options
+  const mailOptions = {
+    from: 'hlau0017@student.monash.edu',
+    to: 'sueysueyho147@gmail.com',
+    subject: 'Test Email using Gmail API',
+    text: 'This is a test email sent using the Gmail API and Node.js!',
+  };
+
+  // Send the email
+  const result = await transporter.sendMail(mailOptions);
+  console.log('Email sent:', result);
+}
+app.get('/sendEmail', async (req, res) => {
+  authorize()
+    .then(  
+      sendEmail,
+      res.status(200)
+    )
+    .catch(console.error);
 });
