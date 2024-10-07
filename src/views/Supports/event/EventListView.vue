@@ -72,7 +72,6 @@
             <template #body="slotProps">
                 <div class="d-flex gap-2 justify-content-end">
                     <button class="btn btn-primary mr-2" @click="visible = true, selectedEvent=slotProps.data, $event.stopPropagation()">Read more</button>
-                    <Button icon="pi pi-heart" outlined></Button>
                 </div>
 
             </template>
@@ -95,7 +94,8 @@
         <template #footer>
             <div class="d-flex gap-4 mt-1">
                 <Button label="Direction" severity="primary" class="w-full" @click="addNavigation(selectedEvent.coordinates)" v-if="layout=='List'"/>
-                <Button label="Register" class="w-full" @click="registerEvent(selectedEvent.id)"/>
+                <Button label="Registered" v-if="registeredEvent.includes(selectedEvent.id)" class="w-full"/>
+                <Button label="Register" v-else class="w-full" @click="registerEvent(selectedEvent.id)"/>
             </div>
         </template>
     </Dialog>
@@ -133,6 +133,7 @@ const navigation = ref();
 const geocoderContainer = ref();
 const store = useStore();
 const dt = ref();
+const registeredEvent = ref();
 const initFilters = () => {
     filters.value = {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -183,6 +184,7 @@ const docs = ref()
  */
 onMounted(() => {
     getEvents();
+    getUserRegisteredEvents();
     if (layout.value === 'map') {
         initMap();
     }
@@ -211,6 +213,22 @@ const getEvents = async () => {
     })
     docs.value = formattedDocs;
     loading.value = false;
+  } catch (error) {
+    console.error('Error fetching book count: ', error);
+    this.error = error;
+  }
+}
+
+const getUserRegisteredEvents = async () => {
+  try {
+    const userId = store.getters.currentUser;
+    const response = await axios.post(
+      'http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/getUserRegisteredEvents', {userId: userId}
+    );
+    const documents = response.data;
+    const documentIds = documents.map(doc => doc.id);
+    registeredEvent.value = documentIds;
+    console.log(documentIds)
   } catch (error) {
     console.error('Error fetching book count: ', error);
     this.error = error;
@@ -272,8 +290,8 @@ const closeNavigation = () => {
 const registerEvent = async(eventId) => {
     try {
         const userId = store.getters.currentUser;
-        // const response = await axios.post('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/registerEvent', {userId: userId,eventId: eventId });
-        const send = await axios.get('http://localhost:3000/sendEmail');
+        const response = await axios.post('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/registerEvent', {userId: userId,eventId: eventId });
+        // const send = await axios.get('http://localhost:3000/sendEmail');
         visible.value = false;
     } catch (error) {
         console.error('Error register event: ', error);

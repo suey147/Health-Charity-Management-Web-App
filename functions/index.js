@@ -98,3 +98,34 @@ exports.registerEvent = onRequest((req, res) => {
   });
 });
 
+exports.getUserRegisteredEvents = onRequest((req, res) => {
+  cors(req, res, async () => {
+    const {userId} = req.body;
+    try {
+      const firebase = admin.firestore();
+      const userRef = firebase.collection("Users").doc(userId);
+      const snapshot = await userRef.get();
+      if (snapshot.empty) {
+        return res.status(400).send('User not found');
+      }
+      const data = snapshot.data();
+      const referencesArray = data.registeredEvents;
+
+      if (referencesArray.length == 0) {
+        return res.status(200).send('No registered events references found');
+      }
+
+      const fetchPromises = referencesArray.map(ref => ref.get());
+      const referencedDocs = await Promise.all(fetchPromises);
+
+      const results = referencedDocs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      return res.status(200).send(results);
+    } catch (error) {
+      console.error("Error registering event: ", error.message);
+      res.status(500).send("Error registering event");
+    }
+  });
+});
