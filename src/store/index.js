@@ -11,7 +11,9 @@ const authState = createStore({
         //Role of the authenticated user.
         role: null,
         //current user id 
-        currentUser: null
+        currentUser: null,
+        //user details
+        userDetails: {},
     },
     mutations:{
         /**
@@ -25,11 +27,19 @@ const authState = createStore({
          */
         setAuthenticated(state, payload){
             state.isAuthenticated = payload.isAuthenticated;
-            state.role = payload.role;
+            state.role = payload.userDetails.role;
             state.currentUser = payload.currentUser;
+
+            const userDetails = payload.userDetails;
+            delete userDetails.registeredEvents;
+            state.userDetails = userDetails;
+
             sessionStorage.setItem("isLoggedIn", state.isAuthenticated);
             sessionStorage.setItem("role", state.role );
             sessionStorage.setItem("currentUser", state.currentUser);
+            sessionStorage.setItem("name", state.userDetails.fname);
+            sessionStorage.setItem("email", state.userDetails.email);
+            sessionStorage.setItem("details", JSON.stringify(userDetails));
         },
         /**
          * Clears the authentication state.
@@ -40,9 +50,13 @@ const authState = createStore({
             state.isAuthenticated = false;
             state.role = null;
             state.currentUser = null;
+            state.userDetails = {};
             sessionStorage.removeItem("isLoggedIn");
             sessionStorage.removeItem("role");
             sessionStorage.removeItem("currentUser");
+            sessionStorage.removeItem("name");
+            sessionStorage.removeItem("email");
+            sessionStorage.removeItem("registered");
         }
     },
     getters:{
@@ -76,6 +90,10 @@ const authState = createStore({
          */
         isAdmin(){
             return sessionStorage.getItem("role") == 'admin'
+        },
+
+        getUserDetails(){
+            return JSON.parse(sessionStorage.getItem("details"));
         }
     }
 });

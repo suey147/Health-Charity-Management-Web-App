@@ -5,12 +5,18 @@ import fs from 'fs/promises';
 import sfs from 'fs'
 // import process from 'process'
 import {authenticate} from '@google-cloud/local-auth';
+import multer from 'multer';
+import { jsPDF } from "jspdf";
+import autoTable from 'jspdf-autotable';
+import cors from 'cors'
 
 const app = express();
 const port = 3000;
 const router = express.Router();
-// Gmail API
+app.use(cors());
+app.use(express.json());
 
+// Gmail API
 // If modifying these scopes, delete token.json.
 const SCOPES = [
     'https://www.googleapis.com/auth/gmail.modify',
@@ -83,15 +89,16 @@ async function loadSavedCredentialsIfExist() {
   }
 
   // Took https://stackoverflow.com/questions/50639036/send-mail-with-attachment-pdf-using-gmail-api as example
-async function sendEmail(auth) {
+async function sendEmail(auth, attachment, user) {
   const gmail = google.gmail({version: 'v1', auth});
-  const fileName = "A2BasicAppReport.pdf";
-  const attach = new Buffer.from(sfs.readFileSync("./"+fileName)).toString("base64");
-  const emailBody = 'My Email Message';
+  // const fileName = "A2BasicAppReport.pdf";
+  // const attach = new Buffer.from(sfs.readFileSync("./"+fileName)).toString("base64");
+  const attach = attachment.toString("base64")
+  const emailBody = "Dear"+ user.fname+"\n Please find your registered event attached";
   const emailLines = [
     'MIME-Version: 1.0',
     'From: hlau0017@student.monash.edu',
-    'To: sueysueyho147@gmail.com',
+    `To: ${user.email}`,
     'Subject: Test Subject',
     "Content-Type: multipart/mixed; boundary=012boundary01",
     '',
@@ -137,12 +144,42 @@ async function sendEmail(auth) {
 
 }
 
-app.get('/sendEmail', (req, res) => 
+app.post('/sendEmail', function (req, res)
 {
+  const {data, user} = req.body;
+  if(!data){
+    return res.status(400).send('No file upload.');
+  }
+  const attachment = generatePdf(data);
   authorize()
     .then(
-        sendEmail,
+      (auth) => {
+        sendEmail(auth, attachment, user);
         res.status(200)
+      }
     )
     .catch(console.error);
 });
+
+function generatePdf(data) {
+  var doc = new jsPDF('p', 'pt', 'a4')
+  // Supply data via script
+  var body = [
+             ['No', 'Event Name', 'Date', 'time'],
+             [1, data.name , data.date, data.date],
+             ]
+  // generate auto table with body
+  var y = 10;
+  doc.setLineWidth(2);
+  doc.text(200, y = y + 30, "Event Registration Ticket");
+  doc.autoTable({
+      body: body,
+      startY: 70,
+      theme: 'grid',
+               })
+  // save the data to this file
+  // doc.save('test.pdf')
+  // const pdfBuffer = Buffer.from(doc.output('arraybuffer'));
+  // sfs.writeFileSync('./test.pdf', pdfBuffer); 
+  return Buffer.from(doc.output('arraybuffer'));
+}

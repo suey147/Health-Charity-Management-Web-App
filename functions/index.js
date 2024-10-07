@@ -115,10 +115,10 @@ exports.getUserRegisteredEvents = onRequest((req, res) => {
         return res.status(200).send('No registered events references found');
       }
 
-      const fetchPromises = referencesArray.map(ref => ref.get());
+      const fetchPromises = referencesArray.map((ref) => ref.get());
       const referencedDocs = await Promise.all(fetchPromises);
 
-      const results = referencedDocs.map(doc => ({
+      const results = referencedDocs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));

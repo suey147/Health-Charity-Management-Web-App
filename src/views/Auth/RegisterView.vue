@@ -212,9 +212,10 @@ const handleRegister = async (userData) => {
     createUserWithEmailAndPassword(auth, userData.email, userData.password)
     .then(async (data) => {
       console.log("Firebase Register Successful!")
+      delete userData.password;
       await setDoc(doc(db, 'Users', data.user.uid), userData);
       toast.add({ severity: 'success', summary: 'Register successfully' })
-      const redirect = router.currentRoute.value.query.redirect || { name: 'Home' }
+      const redirect = router.currentRoute.value.query.redirect || { name: 'Login' }
       router.push(redirect)
     })
 

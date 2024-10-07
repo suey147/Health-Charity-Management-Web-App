@@ -122,8 +122,7 @@ const handleSubmit = () => {
     .then(async (data) => {
         console.log("Firebase Login Successful!");
         const roleDoc = await getDoc(doc(db, 'Users', auth.currentUser.uid));
-        const userRole = roleDoc.data().role;
-        store.commit('setAuthenticated', {isAuthenticated: true, role:  userRole, currentUser: auth.currentUser.uid})
+        store.commit('setAuthenticated', {isAuthenticated: true, userDetails: roleDoc.data(), currentUser: auth.currentUser.uid})
         const redirect = router.currentRoute.value.query.redirect || { name: 'Home' };
         router.push(redirect).then(() => {
             window.location.reload();
