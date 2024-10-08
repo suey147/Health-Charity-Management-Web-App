@@ -107,8 +107,8 @@
                 @input="() => validateRole(false)"
                 v-model="formData.role"
               >
-                <option value="user">Participant</option>
-                <option value="user">Volunteer</option>
+                <option value="participant">Participant</option>
+                <option value="volunteer">Volunteer</option>
                 <!-- <option value="admin">Admin</option> -->
               </select>
               <div v-if="errors.role" class="text-danger">{{ errors.role }}</div>
@@ -213,6 +213,7 @@ const handleRegister = async (userData) => {
     .then(async (data) => {
       console.log("Firebase Register Successful!")
       delete userData.password;
+      userData.uid = data.user.uid;
       await setDoc(doc(db, 'Users', data.user.uid), userData);
       toast.add({ severity: 'success', summary: 'Register successfully' })
       const redirect = router.currentRoute.value.query.redirect || { name: 'Login' }

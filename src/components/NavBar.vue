@@ -48,7 +48,7 @@
               <div class="dropdown" v-if="$store.getters.isAuthenticated">
                 <a class="me-2 dropdown-toggle" id="userDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">{{user}}</a>
                 <ul class="dropdown-menu" aria-labelledby="userDropdownButton">
-                  <li> <router-link to="/supports/events" class="dropdown-item nav-link" active-class="active">Events</router-link></li>
+                  <li> <router-link to="/dashboard" class="dropdown-item nav-link" active-class="active">Dashboard</router-link></li>
                   <li><router-link  to="/"  @click="handleLogout" class="btn btn-primary text-dark me-2" active-class="active">Logout</router-link></li>
                 </ul>
               </div>

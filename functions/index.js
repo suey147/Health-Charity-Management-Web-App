@@ -10,6 +10,7 @@ const admin = require("firebase-admin");
 const {FieldValue} = require("firebase-admin/firestore");
 const cors = require("cors")({origin: true});
 const {onRequest} = require("firebase-functions/v2/https");
+const {onDocumentCreated} = require("firebase-functions/v2/firestore");
 
 admin.initializeApp();
 
@@ -128,4 +129,34 @@ exports.getUserRegisteredEvents = onRequest((req, res) => {
       res.status(500).send("Error registering event");
     }
   });
+});
+
+
+exports.countUsers = onDocumentCreated("Users/{docId}", async (event)=>{
+  try {
+    const snapshot = event.data;
+    if (!snapshot) {
+      console.log("No data associated with the event");
+      return;
+    }
+    const userData = snapshot.data();
+    const docRef = snapshot.ref;
+    const role = userData.role;
+
+    const userCountRef = admin.firestore().collection("Count").doc("users");
+    const userCountSnapshot = await userCountRef.get();
+    if (userCountSnapshot.empty) {
+      await userCountSnapshot.set(
+          {admin: 0, volunteer: 0, participant: 0, donor: 0},
+          {merge: true});
+    }
+    const count = userCountSnapshot.data();
+
+    const updateUserCount = await userCountRef.update({
+      [role]: count[role]+1});
+
+    console.log(`Role ${role} updated`);
+  } catch (error) {
+    console.error("Error capitalizing book data: ", error.message);
+  }
 });

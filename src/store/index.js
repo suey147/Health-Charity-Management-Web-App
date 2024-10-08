@@ -27,7 +27,9 @@ const authState = createStore({
          */
         setAuthenticated(state, payload){
             state.isAuthenticated = payload.isAuthenticated;
-            state.role = payload.userDetails.role;
+            if (payload.userDetails.role!='admin'){
+                state.role = 'user';
+            }
             state.currentUser = payload.currentUser;
 
             const userDetails = payload.userDetails;
