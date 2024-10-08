@@ -25,7 +25,7 @@ import AccessRequired from '@/views/knowledgeHub/edit/AccessRequired.vue';
 
 import AdminRequiredView from '@/views/AdminRequiredView.vue';
 import ThreadShow from '@/views/Supports/ThreadShow.vue';
-
+import DashboardView from '@/views/Dashboard.vue';
 // create routes
 const routes = [
     // Home section
@@ -135,6 +135,11 @@ const routes = [
         path: '/admin-required',
         name: 'AdminRequired',
         component: AdminRequiredView,
+    },
+    {
+        path: '/dashbord',
+        name: 'Dashboard',
+        component: DashboardView
     },
 ]
 
