@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app'
 import { getFirestore, doc, connectFirestoreEmulator } from "firebase/firestore";
 import { connectAuthEmulator, getAuth } from 'firebase/auth';
-
+import { getDatabase } from 'firebase/database'
 /**
  * Firebase configuration object.
  */
@@ -11,7 +11,8 @@ const firebaseConfig = {
   projectId: "fit5032-assignment-ce36f",
   storageBucket: "fit5032-assignment-ce36f.appspot.com",
   messagingSenderId: "242934523693",
-  appId: "1:242934523693:web:1edc44e6b9d91d7c9155a4"
+  appId: "1:242934523693:web:1edc44e6b9d91d7c9155a4",
+  databaseURL: "http://127.0.0.1:9000/?ns=fit5032-assignment-ce36f"
 };
 
 /**
@@ -20,6 +21,7 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
+const database = getDatabase(firebaseApp);
 
 if (window.location.hostname === "localhost") {
   connectAuthEmulator(auth, "http://127.0.0.1:9099");
@@ -30,7 +32,7 @@ export default firebaseApp
 /**
  * Firestore database instance.
  */
-export {db};
+export {db, database};
 
 /**
  * Reference to the 'knowledgeHub' collection and 'documents' document in Firestore.

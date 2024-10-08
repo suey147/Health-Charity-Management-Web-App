@@ -22,7 +22,17 @@
     import DataTable from 'primevue/datatable';
     import Column from 'primevue/column';
     import { useRouter } from 'vue-router';
-    
+    import { database } from '@/firebase';
+    import { ref as dbRef, set } from "firebase/database";
+
+    function writeUserData(userId, name, email, imageUrl) {
+        set(dbRef(database, 'users/' + userId), {
+            username: name,
+            email: email,
+            profile_picture : imageUrl
+        });
+    }
+
     const store = useStore();
     const router = useRouter();
     const forum = ref();
