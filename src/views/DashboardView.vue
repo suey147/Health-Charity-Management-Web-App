@@ -1,7 +1,9 @@
 <template>
   <div class="admin-dashboard container">
     <h1>Admin Dashboard</h1>
-
+    <div class="col-md-12 col-sm-12 col-12 text-center">
+      <SelectButton v-model="value" :options="options" aria-labelledby="basic" severity="success" />
+    </div>
     <!-- Overview Cards for Users -->
     <div class="row mb-4">
       <div class="col-md-4">
@@ -16,7 +18,7 @@
         <div class="card text-center">
           <div class="card-body">
             <h5 class="card-title">Number of Participants</h5>
-            <p class="card-text">{{ userStats.participants }}</p>
+            <p class="card-text">{{ userStats.participant }}</p>
           </div>
         </div>
       </div>
@@ -37,17 +39,22 @@
         <canvas id="userStatsChart"></canvas>
       </div>
     </div>
+
+    <button type="submit" class="btn btn-primary" @click="sendBulkEmail">Submit</button>
   </div>
 </template>
 
-<script>
+<script setup>
 import { onMounted, ref } from 'vue'
 import { db } from '../firebase' // Import Firebase configuration
 import { doc, getDoc } from 'firebase/firestore'
 import Chart from 'chart.js/auto'
+import SelectButton from 'primevue/selectbutton'
+import axios from 'axios'
 
-export default {
-  setup() {
+
+    const options = ref(['User', 'KnowledgeHub'])
+    const value = ref('User')
     const userStats = ref({
       donor: 0,
       participant: 0,
@@ -83,6 +90,10 @@ export default {
       }
     }
 
+    const sendBulkEmail = async () => {
+      const users = ['sueysueyho147@gmail.com', 'hlau0017@student.monash.edu']
+      const send = await axios.post('http://localhost:3000/sendBulkEmail', { users: users })
+    }
 
     const createUserStatsChart = (data) => {
       const ctx = document.getElementById('userStatsChart').getContext('2d')
@@ -121,13 +132,6 @@ export default {
     onMounted(() => {
       fetchData()
     })
-
-    return {
-      userStats,
-      knowledgeHubStats
-    }
-  }
-}
 </script>
 
 <style scoped>

@@ -295,7 +295,7 @@ const closeNavigation = () => {
 const registerEvent = async(eventId) => {
     try {
         const userId = store.getters.currentUser;
-        // const response = await axios.post('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/registerEvent', {userId: userId,eventId: eventId });
+        const response = await axios.post('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/registerEvent', {userId: userId,eventId: eventId });
         const userDetails = JSON.parse(sessionStorage.getItem("details"));
         const send = await axios.post('http://localhost:3000/sendEmail',{data: selectedEvent.value, user: userDetails});
         visible.value = false;

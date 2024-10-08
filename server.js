@@ -89,17 +89,18 @@ async function loadSavedCredentialsIfExist() {
   }
 
   // Took https://stackoverflow.com/questions/50639036/send-mail-with-attachment-pdf-using-gmail-api as example
-async function sendEmail(auth, attachment, user) {
+async function sendEmail(auth, options) {
   const gmail = google.gmail({version: 'v1', auth});
-  // const fileName = "A2BasicAppReport.pdf";
-  // const attach = new Buffer.from(sfs.readFileSync("./"+fileName)).toString("base64");
-  const attach = attachment.toString("base64")
-  const emailBody = "Dear"+ user.fname+"\n Please find your registered event attached";
+
+  const {recipients, subject, body, attachment, filename, sender = 'hlau0017@student.monash.edu'} = options;
+
+  const recipientList = Array.isArray(recipients) ? recipients.join(',') : recipients;
+  console.log(recipients)
   const emailLines = [
     'MIME-Version: 1.0',
-    'From: hlau0017@student.monash.edu',
-    `To: ${user.email}`,
-    'Subject: Test Subject',
+    `From: ${sender}`,
+    `To: ${recipientList}`,
+    `Subject: ${subject}`,
     "Content-Type: multipart/mixed; boundary=012boundary01",
     '',
 
@@ -111,17 +112,25 @@ async function sendEmail(auth, attachment, user) {
     "Content-type: text/html; charset=UTF-8", 
     "Content-Transfer-Encoding: quoted-printable",
     '',
-    emailBody,
+    body,
     '',
     "--012boundary02--",
-    "--012boundary01",
-    "Content-Type: Application/pdf; name=A2BasicAppReport.pdf",
-    'Content-Disposition: attachment; filename=A2BasicAppReport.pdf',
-    "Content-Transfer-Encoding: base64",
-    '',
-    attach,
-    "--012boundary01--",
   ];
+
+  if (attachment) {
+    const base64Attachment = attachment.toString('base64');
+    emailLines.push(
+      '--012boundary01',
+      `Content-Type: Application/pdf; name=${filename}`,
+      `Content-Disposition: attachment; filename=${filename}`,
+      'Content-Transfer-Encoding: base64',
+      '',
+      base64Attachment,
+      ''
+    );
+  }
+
+  emailLines.push('--012boundary01--');
 
   const email = emailLines.join('\n');
   const base64Email = Buffer.from(email)
@@ -151,10 +160,18 @@ app.post('/sendEmail', function (req, res)
     return res.status(400).send('No file upload.');
   }
   const attachment = generatePdf(data);
+
+  const options = {
+    recipients: user.email,
+    subject: 'Registered Events',
+    body: generateEmailTemplate(user.email, 'Please find the attached report.'),
+    attachment: attachment,
+    filename: 'Event_registered_confirmation.pdf',
+  };
   authorize()
     .then(
       (auth) => {
-        sendEmail(auth, attachment, user);
+        sendEmail(auth, options);
         res.status(200)
       }
     )
@@ -183,3 +200,48 @@ function generatePdf(data) {
   // sfs.writeFileSync('./test.pdf', pdfBuffer); 
   return Buffer.from(doc.output('arraybuffer'));
 }
+
+app.post('/sendBulkEmail', function (req, res)
+{
+  const {users} = req.body;
+  
+  const htmlTemplatePath = path.join(process.cwd(), 'emailTemplate.html');
+  let emailBody = sfs.readFileSync(htmlTemplatePath, 'utf8');
+
+
+  const options = {
+    recipients: users,
+    subject: 'MindWell Monthly letter',
+    body: emailBody,
+    attachment: null,
+    filename: 'Event in MindWell',
+  };
+  authorize()
+    .then(
+      (auth) => {
+        sendEmail(auth, options);
+        res.status(200)
+      }
+    )
+    .catch(console.error);
+});
+
+/**
+ * Generates an email body template.
+ * 
+ * @param {string} recipientName - Name of the recipient or group.
+ * @param {string} content - The main content of the email.
+ * @returns {string} - A formatted email body as a string.
+ */
+function generateEmailTemplate(recipientName, content) {
+  return `
+    <html>
+      <body>
+        <p>Dear ${recipientName},</p>
+        <p>${content}</p>
+        <p>Best regards,<br>MindWell</p>
+      </body>
+    </html>
+  `;
+}
+
