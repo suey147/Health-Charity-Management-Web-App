@@ -1,5 +1,5 @@
 <template>
-  <Toast />
+  
   <div class="container mt-5">
     <div class="col-md-8 offset-md-2">
       <div
@@ -121,6 +121,7 @@
         </div>
       </div>
     </div>
+    <Toast />
   </div>
 </template>
 
@@ -210,15 +211,18 @@ const addUser = async () => {
 const handleRegister = async (userData) => {
   try {
     createUserWithEmailAndPassword(auth, userData.email, userData.password)
-    .then(async (data) => {
-      console.log("Firebase Register Successful!")
-      delete userData.password;
-      userData.uid = data.user.uid;
-      await setDoc(doc(db, 'Users', data.user.uid), userData);
-      toast.add({ severity: 'success', summary: 'Register successfully' })
-      const redirect = router.currentRoute.value.query.redirect || { name: 'Login' }
-      router.push(redirect)
-    })
+      .then(async (data) => {
+        console.log("Firebase Register Successful!")
+        delete userData.password;
+        userData.uid = data.user.uid;
+        await setDoc(doc(db, 'Users', data.user.uid), userData);
+        toast.add({ severity: 'success', summary: 'Register successfully' })
+        const redirect = router.currentRoute.value.query.redirect || { name: 'Login' }
+        router.push(redirect)
+      })
+      .catch((error) => {
+        toast.add({ severity: 'danger', summary: 'Register failed', detail: error, life: 3000 })
+      })
 
   } catch (error) {
     toast.add({ severity: 'danger', summary: 'Register failed' })

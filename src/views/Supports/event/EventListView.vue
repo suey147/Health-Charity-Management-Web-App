@@ -14,7 +14,7 @@
                 </IconField>
                 <SelectButton v-model="layout" :options="options" :allowEmpty="false">
                     <template #option="{ option }">
-                        <i :class="[option === 'list' ? 'pi pi-bars' : 'pi pi-map']" />
+                        <i :class="[option === 'list' ? 'pi pi-bars' : 'pi pi-map']">{{ option === 'list' ? 'List view' : 'Map view' }}</i>
                     </template>
                 </SelectButton>
                 <button v-if="inNavigation" @click="closeNavigation" class="btn btn-danger">
@@ -24,7 +24,7 @@
         </div>
         <!-- Event List datatabe -->
         <DataTable v-model:filters="filters" :value="docs" ref="dt" :rows="10" dataKey="id" filterDisplay="menu" :loading="loading"
-        :globalFilterFields="['name', 'date', 'address']" v-if="layout == 'list'">
+        :globalFilterFields="['name', 'date', 'addr']" v-if="layout == 'list'">
             <!-- Event Image -->
             <Column field="image" style="width: 25%">
                 <template #body="slotProps">
@@ -35,7 +35,7 @@
                         <div class="font-size28">{{ slotProps.data.date.getDate() }}</div>
                         <div class="font-size14">{{ slotProps.data.date.toLocaleString('default', { month: 'long' }) }}</div>
                     </div>
-                    <img :src="slotProps.data.image" width="200" />
+                    <img :src="slotProps.data.image" width="200" :alt="slotProps.data.name"/>
                     </div>
                 </template>
             </Column>
@@ -58,7 +58,7 @@
                 </template>
             </Column>
 
-            <Column header="Address" filterField="address" field="addr" style="min-width: 10rem">
+            <Column header="Address" filterField="addr" field="addr" style="min-width: 10rem">
                 <template #body="{ data }">
                     <span>{{ data.addr }}</span>
                 </template>
@@ -144,7 +144,7 @@ const initFilters = () => {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
     name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
     date: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
-    address: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+    addr: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
 }};
 initFilters();
 

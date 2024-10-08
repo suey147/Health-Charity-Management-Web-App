@@ -7,12 +7,10 @@ import HomeView from '../views/HomeView.vue'
 import AboutUsView from '@/views/About/AboutUsView.vue'
 import ContactUsView from '@/views/About/ContactUsView.vue'
 import DonationView from '@/views/About/DonationView.vue'
-import OurTeamView from '@/views/About/OurTeamView.vue'
 import DonationPaymenView from '@/views/About/DonationPaymenView.vue'
 
 // Supports
 import ForumView from '@/views/Supports/ForumView.vue'
-import SupportGroupView from '@/views/Supports/SupportGroupView.vue'
 import EventView from '@/views/Supports/event/EventListView.vue'
 import LoginView from '@/views/Auth/LoginView.vue'
 import RegisterView from '@/views/Auth/RegisterView.vue'
@@ -43,11 +41,6 @@ const routes = [
         path: 'about-us',
         name: 'About Us',
         component: AboutUsView
-      },
-      {
-        path: 'team',
-        name: 'About Team',
-        component: OurTeamView
       },
       {
         path: 'contact-us',
@@ -87,11 +80,6 @@ const routes = [
         name: 'ThreadShow',
         component: ThreadShow,
         props: true
-      },
-      {
-        path: 'support-groups',
-        name: 'Support Groups',
-        component: SupportGroupView
       }
     ]
   },

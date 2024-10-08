@@ -1,6 +1,6 @@
 <template>
     <div class="px-3 py-2 bg-info text-white">
-      <div class="container">
+      <div class="container-fluid">
         <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
           <!-- logo -->
           <router-link to="/" class="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-white text-decoration-none bg-dark">
@@ -17,7 +17,6 @@
                 <ul class="dropdown-menu" aria-labelledby="aboutUsDropdownButton">
                   <li><router-link to="/about/about-us" class="dropdown-item nav-link" active-class="active">About us</router-link></li>
                   <li><router-link to="/about/contact-us" class="dropdown-item nav-link" active-class="active">Contact us</router-link></li>
-                  <li><router-link to="/about/team" class="dropdown-item nav-link" active-class="active">Our Team</router-link></li>
                   <li> <router-link to="/donate" class="dropdown-item nav-link" active-class="active">Donate</router-link></li>
                 </ul>
               </div>
@@ -30,10 +29,6 @@
                 <ul class="dropdown-menu" aria-labelledby="supportsDropdownButton">
                   <li> <router-link to="/supports/events" class="dropdown-item nav-link" active-class="active">Events</router-link></li>
                   <li> <router-link to="/supports/forum" class="dropdown-item nav-link" active-class="active">Forums</router-link></li>
-                  <li>
-                    <router-link to="/supports/support-groups" class="dropdown-item nav-link" active-class="active">Support Groups</router-link>
-                  </li>
-                  
                 </ul>
               </div>
             </li>
@@ -77,7 +72,7 @@
 
   // automatically update when their dependencies change
   const user = computed(() => {
-    return store.getters.currentUser
+    return sessionStorage.getItem("name");
   })
 </script>
 

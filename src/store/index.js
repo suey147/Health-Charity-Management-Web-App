@@ -27,8 +27,10 @@ const authState = createStore({
          */
         setAuthenticated(state, payload){
             state.isAuthenticated = payload.isAuthenticated;
-            if (payload.userDetails.role!='admin'){
-                state.role = 'user';
+            if (payload.userDetails.role!="admin"){
+                state.role = "user";
+            }else{
+                state.role = payload.userDetails.role
             }
             state.currentUser = payload.currentUser;
 
@@ -96,6 +98,9 @@ const authState = createStore({
 
         getUserDetails(){
             return JSON.parse(sessionStorage.getItem("details"));
+        },
+        userName(){
+            return sessionStorage.getItem("name");
         }
     }
 });
