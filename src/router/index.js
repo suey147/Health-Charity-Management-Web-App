@@ -24,6 +24,7 @@ import EditKnowledgeHub from '@/views/knowledgeHub/edit/KHEdit.vue';
 import AccessRequired from '@/views/knowledgeHub/edit/AccessRequired.vue';
 
 import AdminRequiredView from '@/views/AdminRequiredView.vue';
+import ThreadShow from '@/views/Supports/ThreadShow.vue';
 
 // create routes
 const routes = [
@@ -81,6 +82,12 @@ const routes = [
                 name: 'Forum',
                 component: ForumView,
             },
+            {
+                path: '/thread/:id',
+                name: 'ThreadShow',
+                component: ThreadShow,
+                props: true
+              },
             {
                 path: 'support-groups',
                 name: 'Support Groups',

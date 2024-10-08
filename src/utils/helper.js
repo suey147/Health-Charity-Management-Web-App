@@ -23,4 +23,12 @@ const categorizedDocuments = (documents) => {
     return allDocs;
 }
 
-export default categorizedDocuments;
+const countObjectProperties = obj => {
+  if (typeof obj === 'object') {
+    return Object.keys(obj).length
+  }
+  return 0
+}
+
+
+export {categorizedDocuments, countObjectProperties};

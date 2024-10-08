@@ -133,7 +133,7 @@ import '@vueup/vue-quill/dist/vue-quill.snow.css';
 import DOMPurify from 'dompurify';
 import createNewDocument from '../../../models/knowledgeHubDocument';
 import axios from 'axios';
-import categorizedDocuments from '../../../utils/helper';
+import {categorizedDocuments} from '../../../utils/helper';
 /**
  * Toast instance for displaying notifications.
  */

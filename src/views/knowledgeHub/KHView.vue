@@ -84,7 +84,7 @@
     import { FilterMatchMode, FilterOperator } from "@primevue/core/api"
     import Rating from 'primevue/rating';
     import axios from 'axios';
-    import categorizedDocuments from '../../utils/helper'
+    import {categorizedDocuments} from '../../utils/helper'
     import DatePicker from 'primevue/datepicker';
     import InputText from 'primevue/inputtext';
     import Select from 'primevue/select';
