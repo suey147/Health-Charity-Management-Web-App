@@ -1,15 +1,15 @@
 <template>
-    <div class="px-3 py-2 bg-info text-white">
+    <div class="px-3 py-2 bg-primary text-white">
       <div class="container-fluid">
         <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
           <!-- logo -->
-          <router-link to="/" class="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-white text-decoration-none bg-dark">
+          <router-link to="/" aria-describedby="Link to Home page" class="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-white text-decoration-none bg-dark">
             <IconLogo/>
           </router-link>
 
           <!-- Nav -->
-          <ul class="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">
-            <li>
+          <div class="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">
+            <div>
               <div class="dropdown">
                 <button class="btn btn-outline-light me-2 dropdown-toggle" type="button" id="aboutUsDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
                   About us
@@ -20,8 +20,8 @@
                   <li> <router-link to="/donate" class="dropdown-item nav-link" active-class="active">Donate</router-link></li>
                 </ul>
               </div>
-            </li>
-            <li>
+            </div>
+            <div>
               <div class="dropdown">
                 <button class="btn btn-outline-light me-2 dropdown-toggle" type="button" id="supportsDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">
                   Supports
@@ -31,10 +31,10 @@
                   <li> <router-link to="/supports/forum" class="dropdown-item nav-link" active-class="active">Forums</router-link></li>
                 </ul>
               </div>
-            </li>
-            <li>
+            </div>
+            <div>
               <router-link to="/knowledge-hub" class="btn btn-outline-light me-2" active-class="active">knowledge Hub</router-link>
-            </li>
+            </div>
 
             <!-- Buttons -->
             <div class="text-end d-flex align-items-center">
@@ -49,7 +49,7 @@
               </div>
             
             </div>
-          </ul>
+          </div>
         </div>
       </div>
     </div>
