@@ -13,7 +13,7 @@
             <DataTable :value="threads" tableStyle="min-width: 50rem" @rowClick="onRowClick" v-if="createNewThread == false">
                 <Column field="title" header="Threads"></Column>
             </DataTable>
-            <form v-else>
+            <form v-else @submit.prevent="createThread">
                 <div class="form-group">
                     <label for="newthreadTitle">New Thread Title</label>
                     <input type="text" class="form-control" id="newthreadTitle" v-model="newThread.title" aria-describedby="emailHelp" placeholder="New Thread Title">
@@ -23,8 +23,8 @@
                     <textarea v-model="newThread.description" class="form-control"  id="threadDescription" placeholder="Thread Description"></textarea>
                 </div>
                 <div class="d-flex gap-4 mt-1 justify-content-end">
-                    <button type="submit" class="btn btn-primary" @click="createThread">Submit</button>
-                    <button class="btn btn-danger" @click="createNewThread==false">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="button" class="btn btn-danger" @click="createNewThread==false">Cancel</button>
                 </div>
             </form>
         </div>

@@ -25,7 +25,7 @@
             </div>
             <div class="row mb-3">
               <div class="col-md-6 col-sm-6 col-6">
-                <label for="fname" class="form-label">First Nname</label>
+                <label for="fname" class="form-label">First Name</label>
                 <input
                   type="text"
                   class="form-control"
@@ -38,7 +38,7 @@
               </div>
 
               <div class="col-md-6 col-sm-6 col-6">
-                <label for="lname" class="form-label">Last Nname</label>
+                <label for="lname" class="form-label">Last Name</label>
                 <input
                   type="text"
                   class="form-control"
@@ -221,11 +221,11 @@ const handleRegister = async (userData) => {
         router.push(redirect)
       })
       .catch((error) => {
-        toast.add({ severity: 'danger', summary: 'Register failed', detail: error, life: 3000 })
+        toast.add({ severity: 'error', summary: 'Error Message', detail: 'Failed to register', life: 3000 });
       })
 
   } catch (error) {
-    toast.add({ severity: 'danger', summary: 'Register failed' })
+    toast.add({ severity: 'error', summary: 'Error Message', detail: 'Failed to register', life: 3000 });
   }
 }
 /**

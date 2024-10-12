@@ -14,7 +14,7 @@
                 </IconField>
                 <SelectButton v-model="layout" :options="options" :allowEmpty="false">
                     <template #option="{ option }">
-                        <i :class="[option === 'list' ? 'pi pi-bars' : 'pi pi-map']">{{ option === 'list' ? 'List view' : 'Map view' }}</i>
+                        <i :class="[option === 'list' ? 'pi pi-bars' : 'pi pi-map']" v-tooltip.top="option === 'list' ? 'View events in list' : 'Find events from map'">{{ option === 'list' ? 'List view' : 'Map view' }}</i>
                     </template>
                 </SelectButton>
                 <button v-if="inNavigation" @click="closeNavigation" class="btn btn-danger">
@@ -24,23 +24,17 @@
         </div>
         <!-- Event List datatabe -->
         <DataTable v-model:filters="filters" :value="docs" ref="dt" :rows="10" dataKey="id" filterDisplay="menu" :loading="loading"
-        :globalFilterFields="['name', 'date', 'addr']" v-if="layout == 'list'">
+        :globalFilterFields="['name', 'date', 'addr']" v-if="layout == 'list' && docs" paginator>
             <!-- Event Image -->
             <Column field="image" style="width: 25%">
                 <template #body="slotProps">
-                    <div
-                    class="relative mx-auto position-relative container d-none d-lg-block position-relative img-fluid"
-                    >
-                    <div class="events-date">
-                        <div class="font-size28">{{ slotProps.data.date.getDate() }}</div>
-                        <div class="font-size14">{{ slotProps.data.date.toLocaleString('default', { month: 'long' }) }}</div>
-                    </div>
+                    <div class="relative mx-auto position-relative container d-none d-lg-block position-relative img-fluid">
                     <img :src="slotProps.data.image" width="200" :alt="slotProps.data.name"/>
                     </div>
                 </template>
             </Column>
             <!-- Event details -->
-            <Column header="Name" filterField="name" field="name" style="min-width: 12rem">
+            <Column header="Name" filterField="name" field="name" style="min-width: 12rem" sortable>
                 <template #body="{ data }">
                     <span>{{ data.name }}</span>
                 </template>
@@ -49,16 +43,17 @@
                 </template>
             </Column>
 
-            <Column header="Date" filterField="date" field="date" style="min-width: 10rem">
+            <Column header="Date" filterField="date" field="date" style="min-width: 10rem" sortable>
                 <template #body="{ data }">
                     {{ formatDate(data.date) }}
+                    {{ data.date.toLocaleTimeString() }}
                 </template>
                 <template #filter="{ filterModel }">
                     <DatePicker v-model="filterModel.value" dateFormat="mm/dd/yy" placeholder="mm/dd/yyyy" />
                 </template>
             </Column>
 
-            <Column header="Address" filterField="addr" field="addr" style="min-width: 10rem">
+            <Column header="Address" filterField="addr" field="addr" style="min-width: 10rem" sortable>
                 <template #body="{ data }">
                     <span>{{ data.addr }}</span>
                 </template>
@@ -78,30 +73,36 @@
             </Column>
         </DataTable>
         <!-- Event Map -->
-        <div ref="mapContainerRef" class="map-container"  v-show="layout == 'map'"></div>
+        <div ref="mapContainerRef" class="map-container"  v-show="layout == 'map'" aria-label="map view"></div>
 
     </div>
 
     <!-- Event detail dialog -->
-    <Dialog v-model:visible="visible" modal :value="selectedEvent" header="Event Details" :style="{ width: '25rem'}">
+    <Dialog v-model:visible="visible" modal :value="selectedEvent" header="Event Details" :style="{ width: '25vw'}">
         <div  ref="eventDetailCanvas">
         <img alt="user header" :src='selectedEvent.image' style="max-width: 100%; max-height: 100%; object-fit: cover; overflow: hidden"/>
         <li class="list-unstyled">
-            <i class="pi pi-clock margin-10px-right"></i><span>Time:</span>{{ selectedEvent.time }}
+            <i class="pi pi-clock margin-10px-right"></i><span>Time:</span>{{ selectedEvent.date.toLocaleTimeString() }}
         </li>
         <li class="list-unstyled">
             <i class="pi pi-map-marker margin-5px-right"></i><span>Address:</span>{{ selectedEvent.addr }}
         </li>
+        <li class="list-unstyled">
+            <i class="margin-5px-right"></i><span>Description: </span>{{ selectedEvent.description }}
+        </li>
         </div>
         <template #footer>
             <div class="d-flex gap-4 mt-1">
-                <Button label="Direction" severity="primary" class="w-full" @click="addNavigation(selectedEvent.coordinates)" v-if="layout=='List'"/>
+                <Button label="Direction" severity="primary" class="w-full" @click="addNavigation(selectedEvent.coordinates)" v-if="layout=='map'"/>
                 <Button label="Registered" v-if="registeredEvent!=null && registeredEvent.includes(selectedEvent.id)" class="w-full"/>
                 <Button label="Register" v-else class="w-full" @click="registerEvent(selectedEvent.id)"/>
+                <Button label="Login To Register" v-if="isLoggedIn=='false'" class="w-full" @click="registerEvent(selectedEvent.id)"/>
             </div>
         </template>
         
     </Dialog>
+
+    <Toast/>
 </template>
 
 <script setup>
@@ -121,6 +122,9 @@ import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 import MapboxDirections from '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions';
 import '@mapbox/mapbox-gl-directions/dist/mapbox-gl-directions.css';
 import { useStore } from 'vuex';
+import { useToast } from 'primevue/usetoast'
+import { useRouter } from 'vue-router';
+import Toast from 'primevue/toast'
 
 
 mapboxgl.accessToken = 'pk.eyJ1Ijoic3VleWhvIiwiYSI6ImNrbGkyemhlcTRlbjIydnBlN3lvczI5NWsifQ.G9H734iySPGG2ZiJds8kTw';
@@ -139,6 +143,8 @@ const store = useStore();
 const dt = ref();
 const registeredEvent = ref();
 const eventDetailCanvas = ref( null );
+const isLoggedIn = ref(false);
+const router = useRouter();
 const initFilters = () => {
     filters.value = {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -179,6 +185,8 @@ const initMap = () => {
         console.error('Map container not found!');
     }
 }
+
+const toast = useToast();
 /**
  * Reactive reference to store documents.
  */
@@ -193,6 +201,7 @@ onMounted(() => {
     if (layout.value === 'map') {
         initMap();
     }
+    isLoggedIn.value = store.getters.isAuthenticated;
 })
 
 watch( layout, (newLayout) => {
@@ -204,8 +213,11 @@ watch( layout, (newLayout) => {
 
 const getEvents = async () => {
   try {
+    // const response = await axios.get(
+    //   'http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/getEvents'
+    // );
     const response = await axios.get(
-      'http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/getEvents'
+      'https://getevents-bj37ljbsda-uc.a.run.app'
     );
     const documents = response.data;
     const formattedDocs = documents.map(doc => {
@@ -227,8 +239,11 @@ const getEvents = async () => {
 const getUserRegisteredEvents = async () => {
   try {
     const userId = store.getters.currentUser;
+    // const response = await axios.post(
+    //   'http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/getUserRegisteredEvents', {userId: userId}
+    // );
     const response = await axios.post(
-      'http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/getUserRegisteredEvents', {userId: userId}
+      'https://getuserregisteredevents-bj37ljbsda-uc.a.run.app', {userId: userId}
     );
     const documents = response.data;
     const documentIds = documents.map(doc => doc.id);
@@ -295,11 +310,14 @@ const closeNavigation = () => {
 const registerEvent = async(eventId) => {
     try {
         const userId = store.getters.currentUser;
-        const response = await axios.post('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/registerEvent', {userId: userId,eventId: eventId });
+        // const response = await axios.post('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/registerEvent', {userId: userId,eventId: eventId });
+        const response = await axios.post('https://registerevent-bj37ljbsda-uc.a.run.app', {userId: userId,eventId: eventId });
         const userDetails = JSON.parse(sessionStorage.getItem("details"));
         const send = await axios.post('http://localhost:3000/sendEmail',{data: selectedEvent.value, user: userDetails});
         visible.value = false;
+        toast.add({ severity: 'success', summary: 'Success Message', detail: 'Registered event', life: 3000 });
     } catch (error) {
+        toast.add({ severity: 'error', summary: 'Error Message', detail: 'Failed to register event', life: 3000 });
         console.error('Error register event: ', error);
         this.error = error;
     }
@@ -309,17 +327,13 @@ const exportCSV = () => {
     dt.value.exportCSV();
 };
 
+const navigateToLogin = () => {
+    const redirect = router.currentRoute.value.query.redirect || { name: 'Login' }
+    router.push(redirect)
+}
 </script>
 
 <style scoped>
-.events-date {
-  text-align: center;
-  position: absolute;
-  background-color: rgba(25, 47, 89, 0.9);
-  color: #fff;
-  padding: 12px 20px 8px 20px;
-  text-transform: uppercase;
-}
 .map-container {
     width: 100%;
     height: 70vh; 

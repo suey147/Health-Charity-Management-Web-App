@@ -19,6 +19,10 @@ import Button from 'primevue/button';
 import ToggleButton from 'primevue/togglebutton';
 import Toolbar from 'primevue/toolbar';
 import SelectButton from 'primevue/selectbutton';
+
+import Tooltip from 'primevue/tooltip';
+
+
 /**
  * Initializes and mounts the Vue application.
  */
@@ -63,6 +67,7 @@ app.component('Button', Button);
 app.component('ToggleButton', ToggleButton);
 app.component('Toolbar', Toolbar);
 app.component('SelectButton', SelectButton);
+app.directive('tooltip', Tooltip);
 /**
  * Mounts the Vue application to the DOM.
  * @param {string} selector - The CSS selector for the mount point.

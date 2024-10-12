@@ -15,6 +15,7 @@ const port = 3000;
 const router = express.Router();
 app.use(cors());
 app.use(express.json());
+app.use(express.static('./dist'));
 
 // Gmail API
 // If modifying these scopes, delete token.json.

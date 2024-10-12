@@ -107,13 +107,13 @@ exports.getUserRegisteredEvents = onRequest((req, res) => {
       const userRef = firebase.collection("Users").doc(userId);
       const snapshot = await userRef.get();
       if (snapshot.empty) {
-        return res.status(400).send('User not found');
+        return res.status(400).send("User not found");
       }
       const data = snapshot.data();
       const referencesArray = data.registeredEvents;
 
       if (referencesArray.length == 0) {
-        return res.status(200).send('No registered events references found');
+        return res.status(200).send("No registered events references found");
       }
 
       const fetchPromises = referencesArray.map((ref) => ref.get());
@@ -140,7 +140,6 @@ exports.countUsers = onDocumentCreated("Users/{docId}", async (event)=>{
       return;
     }
     const userData = snapshot.data();
-    const docRef = snapshot.ref;
     const role = userData.role;
 
     const userCountRef = admin.firestore().collection("Count").doc("users");
@@ -152,11 +151,35 @@ exports.countUsers = onDocumentCreated("Users/{docId}", async (event)=>{
     }
     const count = userCountSnapshot.data();
 
-    const updateUserCount = await userCountRef.update({
+    await userCountRef.update({
       [role]: count[role]+1});
 
     console.log(`Role ${role} updated`);
   } catch (error) {
     console.error("Error capitalizing book data: ", error.message);
   }
+});
+
+
+exports.getUsers = onRequest((req, res) => {
+  cors(req, res, async () => {
+    try {
+      const firebase = admin.firestore();
+      const userRef = firebase.collection("Users");
+      const snapshot = await userRef.get();
+      if (snapshot.empty) {
+        return res.status(400).send("User not found");
+      }
+      const data = snapshot.data();
+
+      const results = data.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      return res.status(200).send(results);
+    } catch (error) {
+      console.error("Error retrieving users: ", error.message);
+      res.status(500).send("Error retrieving users");
+    }
+  });
 });

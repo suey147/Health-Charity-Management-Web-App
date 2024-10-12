@@ -97,8 +97,8 @@
           </div>
         </div>
         <div>
-          <button class="bi bi-times btn btn-light" text @click="hideDialog">Cancel</button>
-          <button class="bi bi-check btn btn-primary">Save</button>
+          <button class="bi bi-times btn btn-light" text @click="hideDialog" type="button">Cancel</button>
+          <button class="bi bi-check btn btn-primary" type="submit">Save</button>
         </div>
       </form>
     </Dialog>
@@ -182,7 +182,8 @@ onMounted(() => {
  */
 const getDocumentCount = async() => {
     try {
-        const response = await axios.get('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/getKnowledgeHubDoc');
+        // const response = await axios.get('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/getKnowledgeHubDoc');
+        const response = await axios.get('https://getknowledgehubdoc-bj37ljbsda-uc.a.run.app');
         const documents = response.data;
         const categorized = categorizedDocuments(documents);
         const all = categorized.flatMap((category) => category.documents)
@@ -240,7 +241,8 @@ const filters = ref({
  * Deletes the selected document from Firestore.
  */
 const deleteDocuments = async () => {
-  const response = await axios.post('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/removeKnowledgeHubDoc', {id: row.value.id});
+  // const response = await axios.post('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/removeKnowledgeHubDoc', {id: row.value.id});
+  const response = await axios.post('https://removeknowledgehubdoc-bj37ljbsda-uc.a.run.app', {id: row.value.id});
   getDocumentCount()
   row.value = null
   deleteDocDialog.value = false
@@ -253,7 +255,8 @@ const deleteDocuments = async () => {
 const saveDocuments = async () => {
   newDocument.value.content = DOMPurify.sanitize(newDocument.value.content)
   try {
-    const response = await axios.post('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/addKnowledgeHubDoc', newDocument.value);
+    // const response = await axios.post('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/addKnowledgeHubDoc', newDocument.value);
+    const response = await axios.post('https://addknowledgehubdoc-bj37ljbsda-uc.a.run.app', newDocument.value);
     toast.add({ severity: 'success', summary: 'Successful', detail: 'Document Added', life: 3000 })
     hideDialog()
     getDocumentCount()

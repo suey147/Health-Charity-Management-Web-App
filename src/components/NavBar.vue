@@ -15,7 +15,7 @@
                   About us
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="aboutUsDropdownButton">
-                  <li><router-link to="/about/about-us" class="dropdown-item nav-link" active-class="active">About us</router-link></li>
+                  <li><router-link to="/about/about-us" class="dropdown-item nav-link" active-class="active" aria-describedby="about us">About us</router-link></li>
                   <li><router-link to="/about/contact-us" class="dropdown-item nav-link" active-class="active">Contact us</router-link></li>
                   <li> <router-link to="/donate" class="dropdown-item nav-link" active-class="active">Donate</router-link></li>
                 </ul>
@@ -39,12 +39,12 @@
             <!-- Buttons -->
             <div class="text-end d-flex align-items-center">
               <router-link to="/donate" class="btn btn-warning text-dark me-2" active-class="active">Donate</router-link>
-              <router-link v-if="!$store.getters.isAuthenticated" to="/login" class="btn btn-primary text-dark me-2" active-class="active">Login</router-link>
+              <router-link v-if="!$store.getters.isAuthenticated" to="/login" class="btn btn-primary me-2" active-class="active">Login</router-link>
               <div class="dropdown" v-if="$store.getters.isAuthenticated">
                 <a class="me-2 dropdown-toggle" id="userDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">{{user}}</a>
                 <ul class="dropdown-menu" aria-labelledby="userDropdownButton">
-                  <li> <router-link to="/dashboard" class="dropdown-item nav-link" active-class="active">Dashboard</router-link></li>
-                  <li><router-link  to="/"  @click="handleLogout" class="btn btn-primary text-dark me-2" active-class="active">Logout</router-link></li>
+                  <li> <router-link to="/dashboard" class="dropdown-item nav-link" active-class="active" v-if="role == 'admin'">Dashboard</router-link></li>
+                  <li><router-link  to="/"  @click="handleLogout" class="btn btn-primary me-2" active-class="active">Logout</router-link></li>
                 </ul>
               </div>
             
@@ -73,6 +73,10 @@
   // automatically update when their dependencies change
   const user = computed(() => {
     return sessionStorage.getItem("name");
+  })
+
+  const role = computed(() => {
+    return sessionStorage.getItem("role");
   })
 </script>
 

@@ -15,7 +15,7 @@
             </header>
             <!-- Preview image -->
             <figure class="mb-4">
-              <img class="img-fluid rounded" src="https://dummyimage.com/900x400/ced4da/6c757d.jpg" alt="..." />
+              <img class="img-fluid rounded" :src="selectedDocument.image" :alt="selectedDocument.title" />
             </figure>
             <!-- Post content -->
             <section class="mb-5" v-html="selectedDocument.content"></section>
@@ -68,7 +68,7 @@
 
   const exportPDF = () => {
 
-    html2canvas(content.value)
+    html2canvas(content.value, { useCORS: true })
       .then( (canvas) => {
         const doc = new jsPDF('p', 'mm');
         const imgWidth = 208;
@@ -76,9 +76,8 @@
         const imgHeight = (canvas.height * imgWidth)  / canvas.width;
         let heightLeft = imgHeight;
         let position = 0;
-        heightLeft -= pageHeight;
-        // const img = canvas.toDataURL("image/png");
         doc.addImage(canvas, "PNG", 0, position, imgWidth, imgHeight, '', 'FAST');
+        heightLeft -= pageHeight;
         while (heightLeft >= 0) {
           position = heightLeft - imgHeight;
           doc.addPage();

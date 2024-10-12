@@ -40,6 +40,7 @@
       </div>
     </div>
 
+    <userList/>
     <button type="submit" class="btn btn-primary" @click="sendBulkEmail">Submit</button>
   </div>
 </template>
@@ -51,7 +52,7 @@ import { doc, getDoc } from 'firebase/firestore'
 import Chart from 'chart.js/auto'
 import SelectButton from 'primevue/selectbutton'
 import axios from 'axios'
-
+import userList from '@/components/userList.vue'
 
     const options = ref(['User', 'KnowledgeHub'])
     const value = ref('User')

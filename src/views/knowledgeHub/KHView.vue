@@ -117,7 +117,8 @@
      */
     const getDocumentCount = async() => {
         try {
-            const response = await axios.get('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/getKnowledgeHubDoc');
+            // const response = await axios.get('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/getKnowledgeHubDoc');
+            const response = await axios.get('https://getknowledgehubdoc-bj37ljbsda-uc.a.run.app');
             const documents = response.data;
             const categorized = categorizedDocuments(documents);
             docs.value = categorized;

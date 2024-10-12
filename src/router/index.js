@@ -30,7 +30,11 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: HomeView
+    component: HomeView,
+    meta: {
+      title: 'Home page',
+      description: 'Home page',
+    }
   },
   // About section
   {
@@ -40,12 +44,20 @@ const routes = [
       {
         path: 'about-us',
         name: 'About Us',
-        component: AboutUsView
+        component: AboutUsView,
+        meta: {
+          title: 'About us page',
+          description: 'About us page',
+        }
       },
       {
         path: 'contact-us',
         name: 'Contact Us',
-        component: ContactUsView
+        component: ContactUsView,
+        meta: {
+          title: 'Contact Us page',
+          description: 'Contact Us page',
+        }
       }
     ]
   },
@@ -53,7 +65,11 @@ const routes = [
   {
     path: '/donate',
     name: 'Donate',
-    component: DonationView
+    component: DonationView,
+    meta: {
+      title: 'Donate page',
+      description: 'Donate page',
+    }
   },
   {
     path: '/payment',
@@ -68,18 +84,30 @@ const routes = [
       {
         path: 'events',
         name: 'Events',
-        component: EventView
+        component: EventView,
+        meta: {
+          title: 'Event page',
+          description: 'Event page',
+        }
       },
       {
         path: 'forum',
         name: 'Forum',
-        component: ForumView
+        component: ForumView,
+        meta: {
+          title: 'Forum page',
+          description: 'Forum page',
+        }
       },
       {
         path: '/thread/:id',
         name: 'ThreadShow',
         component: ThreadShow,
-        props: true
+        props: true,
+        meta: {
+          title: 'Thread page',
+          description: 'Thread page',
+        }
       }
     ]
   },
@@ -87,47 +115,83 @@ const routes = [
   {
     path: '/knowledge-hub',
     name: 'Knowledgehub',
-    component: KnowledgeHubView
+    component: KnowledgeHubView,
+    meta: {
+      title: 'Knowledge Hub page',
+      description: 'Knowledge Hub page',
+    }
   },
   {
     path: '/knowledge-hub/document/:id',
     name: 'DocumentPage',
     component: DocumentView,
     props: true,
-    meta: { requiresAuth: true, requriesAdmin: false }
+    meta: { 
+      requiresAuth: true, 
+      requriesAdmin: false,
+      title: 'Knowledge Hub page',
+      description: 'Knowledge Hub page',
+    }
   },
   {
     path: '/knowledge-hub/edit',
     name: 'EditKnowledgeHub',
     component: EditKnowledgeHub,
-    meta: { requiresAuth: true, requriesAdmin: true }
+    meta: { 
+      requiresAuth: true,
+      requriesAdmin: true,
+      title: 'Knowledge Hub page',
+      description: 'Knowledge Hub page',
+    }
   },
   {
     path: '/knowledge-hub/access-required',
     name: 'KHAccessRequired',
-    component: AccessRequired
+    component: AccessRequired,
+    meta: {
+      title: 'Knowledge Hub Access Required page',
+      description: 'Knowledge Hub page',
+    }
   },
   // Login
   {
     path: '/login',
     name: 'Login',
-    component: LoginView
+    component: LoginView,
+    meta: {
+      title: 'Login page',
+      description: 'Login page',
+    }
   },
   // Register
   {
     path: '/register',
     name: 'Register',
-    component: RegisterView
+    component: RegisterView,
+    meta: {
+      title: 'Register page',
+      description: 'Register page',
+    }
   },
   {
     path: '/admin-required',
     name: 'AdminRequired',
-    component: AdminRequiredView
+    component: AdminRequiredView,
+    meta: {
+      title: 'Admin page',
+      description: 'Admin page',
+    }
   },
   {
     path: '/dashboard',
     name: 'Dashboard',
-    component: DashboardView
+    component: DashboardView,
+    meta: { 
+      requiresAuth: true, 
+      requriesAdmin: true,
+      title: 'dashboard page',
+      description: 'Dashboard page',
+    }
   }
 ]
 

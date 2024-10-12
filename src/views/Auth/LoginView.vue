@@ -10,19 +10,6 @@
           <form @submit.prevent="handleSubmit">
             <!-- Username -->
             <div class="row mb-3">
-              <!-- <div class="col-md-12 col-sm-12 col-12">
-                <label for="username" class="form-label">Username</label>
-                <input
-                  type="text"
-                  id="username"
-                  class="form-control"
-                  placeholder="Email address"
-                  required=""
-                  autofocus=""
-                  autocomplete="off"
-                  v-model="formData.username"
-                />
-              </div> -->
               <div class="col-md-12 col-sm-12 col-12">
                 <label for="email" class="form-label">Email</label>
                 <input
@@ -80,7 +67,7 @@ import { useRouter } from 'vue-router'
 import { db } from '../../firebase.js'
 import { collection, getDoc, doc } from 'firebase/firestore'
 import { useToast } from 'primevue/usetoast'
-import { getAuth, signInWithEmailAndPassword  } from 'firebase/auth'
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
 import Toast from 'primevue/toast'
 /**
  * Router instance for navigation.
@@ -96,9 +83,9 @@ const store = useStore()
  * Reactive form data for user credentials.
  */
 const formData = ref({
-//   username: '',
-    email: '',
-    password: ''
+  //   username: '',
+  email: '',
+  password: ''
 })
 
 /**
@@ -109,7 +96,7 @@ const toast = useToast()
 /**
  * firebase authentication instance.
  */
-const auth = getAuth();
+const auth = getAuth()
 
 /**
  * Handles form submission for user authentication.
@@ -117,18 +104,25 @@ const auth = getAuth();
  * @function handleSubmit
  */
 const handleSubmit = () => {
-    const { email, password } = formData.value
-    signInWithEmailAndPassword(getAuth(), email, password)
+  const { email, password } = formData.value
+  signInWithEmailAndPassword(getAuth(), email, password)
     .then(async (data) => {
-        console.log("Firebase Login Successful!");
-        const roleDoc = await getDoc(doc(db, 'Users', auth.currentUser.uid));
-        store.commit('setAuthenticated', {isAuthenticated: true, userDetails: roleDoc.data(), currentUser: auth.currentUser.uid})
-        const redirect = router.currentRoute.value.query.redirect || { name: 'Home' };
-        router.push(redirect).then(() => {
-            window.location.reload();
-        });
-    }).catch ((error) => {
-        console.log(error.code);
+      console.log('Firebase Login Successful!')
+      const roleDoc = await getDoc(doc(db, 'Users', auth.currentUser.uid))
+      store.commit('setAuthenticated', {
+        isAuthenticated: true,
+        userDetails: roleDoc.data(),
+        currentUser: auth.currentUser.uid
+      })
+      const redirect = router.currentRoute.value.query.redirect || { name: 'Home' }
+      toast.add({ severity: 'success', summary: 'Success Message', detail: 'Loggin successed', life: 3000 });
+      router.push(redirect).then(() => {
+        window.location.reload()
+      })
+    })
+    .catch((error) => {
+      toast.add({ severity: 'error', summary: 'Error Message', detail: 'Failed to Loggin', life: 3000 });
+      console.log(error.code)
     })
 }
 </script>
