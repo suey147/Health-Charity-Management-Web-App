@@ -39,9 +39,9 @@
             <!-- Buttons -->
             <div class="text-end d-flex align-items-center">
               <router-link to="/donate" class="btn btn-warning text-dark me-2" active-class="active">Donate</router-link>
-              <router-link v-if="!$store.getters.isAuthenticated" to="/login" class="btn btn-primary me-2" active-class="active">Login</router-link>
+              <router-link v-if="!$store.getters.isAuthenticated" to="/login" class="btn btn-info me-2" active-class="active">Login</router-link>
               <div class="dropdown" v-if="$store.getters.isAuthenticated">
-                <a class="me-2 dropdown-toggle" id="userDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">{{user}}</a>
+                <a class="me-2 text-light dropdown-toggle" id="userDropdownButton" data-bs-toggle="dropdown" aria-expanded="false">{{user}}</a>
                 <ul class="dropdown-menu" aria-labelledby="userDropdownButton">
                   <li> <router-link to="/dashboard" class="dropdown-item nav-link" active-class="active" v-if="role == 'admin'">Dashboard</router-link></li>
                   <li><router-link  to="/"  @click="handleLogout" class="btn btn-primary me-2" active-class="active">Logout</router-link></li>

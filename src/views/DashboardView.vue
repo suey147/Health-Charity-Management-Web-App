@@ -40,19 +40,98 @@
       </div>
     </div>
 
-    <userList/>
-    <button type="submit" class="btn btn-primary" @click="sendBulkEmail">Submit</button>
+    <DataTable v-if="users" v-model:selection="selectedUsers" v-model:filters="filters" :value="users" dataKey="id" paginator :rows="10" filterDisplay="row">
+        <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
+        <Column field="username" filterField="username" header="Name" sortable>
+            <template #body="{ data }">
+                <span>{{ data.name }}</span>
+            </template>
+            <template #filter="{ filterModel, filterCallback }">
+                <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Search by name" />
+            </template>
+        </Column>
+        <Column field="email" filterField="email" header="Email" sortable>
+            <template #body="{ data }">
+                {{ data.email}}
+            </template>
+            <template #filter="{ filterModel }">
+                <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Search by email" />
+            </template>
+        </Column>
+        <Column field="role" filterField="role" header="Role" :showFilterMenu="false" sortable>
+            <template #body="{ data }">
+                {{ data.role }}
+            </template>
+            <template #filter="{ filterModel, filterCallback }">
+                <Select v-model="filterModel.value" @change="filterCallback()" :options="role" placeholder="Select role" style="min-width: 12rem" :showClear="true">
+                    <template #option="slotProps">
+                        <Tag :value="slotProps.option" />
+                    </template>
+                </Select>
+            </template>
+        </Column>
+    </DataTable>
+    <button type="submit" class="btn btn-primary" @click="emailDialog=true">Submit</button>
   </div>
+  <Toast/>
+
+  <Dialog v-model:visible="emailDialog" header="Send bulk email" :modal="true">
+      <form @submit.prevent="sendBulkEmail">
+        <div class="flex flex-col gap-6">
+          <div class="mb-3">
+            <label for="subject" class="block font-bold mb-3 form-label">Subject</label>
+            <input
+              type="text"
+              id="subject"
+              class="form-control"
+              v-model.trim="newEmail.subject"
+              required="true"
+              autofocus
+              fluid
+            />
+          </div>
+          <div class="mb-3">
+            <label for="content" class="block font-bold mb-3 form-label">Content</label>
+            <QuillEditor
+              theme="snow"
+              class="form-control"
+              id="content"
+              v-model:content="newEmail.content"
+              content-type="html"
+              required="true"
+              style="height: 200px;"
+            />
+          </div>
+
+          <FileUpload ref="fileupload" mode="basic" name="attach" accept="application/pdf" :maxFileSize="1000000" @select="onUpload" :auto="true" chooseLabel="Browse" />
+        </div>
+        <div>
+          <button class="bi bi-times btn btn-light" text @click="emailDialog=false" type="button">Cancel</button>
+          <button class="bi bi-check btn btn-primary" type="submit">Save</button>
+        </div>
+      </form>
+    </Dialog>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
-import { db } from '../firebase' // Import Firebase configuration
-import { doc, getDoc } from 'firebase/firestore'
-import Chart from 'chart.js/auto'
-import SelectButton from 'primevue/selectbutton'
-import axios from 'axios'
-import userList from '@/components/userList.vue'
+    import { onMounted, ref } from 'vue'
+    import { db } from '../firebase' // Import Firebase configuration
+    import { doc, getDoc } from 'firebase/firestore'
+    import Chart from 'chart.js/auto'
+    import SelectButton from 'primevue/selectbutton'
+    import axios from 'axios'
+    import DataTable from "primevue/datatable";
+    import Column from "primevue/column";
+    import InputText from 'primevue/inputtext';
+    import Select from 'primevue/select';
+    import Tag from 'primevue/tag';
+    import Dialog from 'primevue/dialog'
+    import { useToast } from 'primevue/usetoast'
+    import { QuillEditor } from '@vueup/vue-quill'
+    import Toast from 'primevue/toast'
+    import FileUpload from 'primevue/fileupload'
+    import { FilterMatchMode, FilterOperator } from "@primevue/core/api"
+    import '@vueup/vue-quill/dist/vue-quill.snow.css';
 
     const options = ref(['User', 'KnowledgeHub'])
     const value = ref('User')
@@ -68,6 +147,19 @@ import userList from '@/components/userList.vue'
       family: 0
     })
 
+    const users = ref();
+    const selectedUsers = ref();
+    const metaKey = ref(true);
+    const role = ref(['participant, volunteer']);
+    const toast = useToast();
+    const newEmail = ref({users: '', subject: '', content: '', attach: ''});
+    const emailDialog = ref(false);
+
+    // Fetch data on component mount
+    onMounted(() => {
+      fetchData();
+      getUsers();
+    })
     // Fetch data from Firebase
     const fetchData = async () => {
       try {
@@ -91,9 +183,50 @@ import userList from '@/components/userList.vue'
       }
     }
 
+    const getUsers = async() => {
+        try {
+            const response = await axios.get('https://getusers-bj37ljbsda-uc.a.run.app');
+            const documents = response.data;
+            console.log(response.data)
+            users.value = documents;
+        } catch (error) {
+            console.log('Error fetch users: ', error);
+        }
+    }
+
+
     const sendBulkEmail = async () => {
-      const users = ['sueysueyho147@gmail.com', 'hlau0017@student.monash.edu']
-      const send = await axios.post('http://localhost:3000/sendBulkEmail', { users: users })
+      if(!selectedUsers.value){
+        toast.add({ severity: 'error', summary: 'Error Message', detail: 'Select users to send email', life: 3000 });
+        return
+      }
+      const users = selectedUsers.value.map(user => user.email)
+      let uploadedFile = null;
+      if (file.value){
+        uploadedFile = file.value
+      }
+
+      const formData = new FormData(); 
+
+      formData.append('users', users);
+      formData.append('attach', uploadedFile); 
+      formData.append('subject', newEmail.value.subject); 
+      formData.append('emailBody', newEmail.value.content); 
+      try {
+        const send = await axios.post('http://localhost:3000/sendBulkEmail', formData, {headers: {'Content-Type': 'multipart/form-data'}});
+        toast.add({ severity: 'success', summary:  'Bulk email sent', detail: 'Emails has sent to selected users', life: 3000 });
+        newEmail.value = { users: '', subject: '', content: '', attach: '' };
+        file.value = null;
+        selectedUsers.value = null;
+        emailDialog.value = false
+      } catch (error) {
+          toast.add({ severity: 'error', summary: 'Error Message', detail: 'Failed to register event', life: 3000 });
+          newEmail.value = { users: '', subject: '', content: '', attach: '' };
+          file.value = null;
+          selectedUsers.value = null;
+          emailDialog.value = false
+          console.log('Error register event: ', error);
+      }
     }
 
     const createUserStatsChart = (data) => {
@@ -129,10 +262,22 @@ import userList from '@/components/userList.vue'
       })
     }
 
-    // Fetch data on component mount
-    onMounted(() => {
-      fetchData()
-    })
+    const filters = ref();
+    const initFilters = () => {
+        filters.value = {
+            global: { value: null, matchMode: FilterMatchMode.CONTAINS },
+            username: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+            email: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
+            role: { value: null, matchMode: FilterMatchMode.EQUALS },
+        };
+    };
+    initFilters();
+    const fileupload = ref(null);
+    const file = ref(null);
+    const onUpload = () => {
+      toast.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
+      file.value = fileupload.value.files[0]
+    };
 </script>
 
 <style scoped>

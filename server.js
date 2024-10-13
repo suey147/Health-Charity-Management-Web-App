@@ -5,10 +5,11 @@ import fs from 'fs/promises';
 import sfs from 'fs'
 // import process from 'process'
 import {authenticate} from '@google-cloud/local-auth';
-import multer from 'multer';
 import { jsPDF } from "jspdf";
-import autoTable from 'jspdf-autotable';
-import cors from 'cors'
+import cors from 'cors';
+import { fileURLToPath } from 'url';
+import { applyPlugin } from 'jspdf-autotable';
+import multer from 'multer';
 
 const app = express();
 const port = 3000;
@@ -16,6 +17,9 @@ const router = express.Router();
 app.use(cors());
 app.use(express.json());
 app.use(express.static('./dist'));
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Gmail API
 // If modifying these scopes, delete token.json.
@@ -26,6 +30,8 @@ const SCOPES = [
 const TOKEN_PATH = path.join(process.cwd(), 'token.json');
 const CREDENTIALS_PATH = path.join(process.cwd(), 'credentials.json');
 
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 app.get('/', (req, res) => {
     res.send('Hello from Node.js!');
@@ -96,7 +102,6 @@ async function sendEmail(auth, options) {
   const {recipients, subject, body, attachment, filename, sender = 'hlau0017@student.monash.edu'} = options;
 
   const recipientList = Array.isArray(recipients) ? recipients.join(',') : recipients;
-  console.log(recipients)
   const emailLines = [
     'MIME-Version: 1.0',
     `From: ${sender}`,
@@ -165,7 +170,7 @@ app.post('/sendEmail', function (req, res)
   const options = {
     recipients: user.email,
     subject: 'Registered Events',
-    body: generateEmailTemplate(user.email, 'Please find the attached report.'),
+    body: generateEmailTemplate(user.username, 'Please find the attached report.'),
     attachment: attachment,
     filename: 'Event_registered_confirmation.pdf',
   };
@@ -173,7 +178,7 @@ app.post('/sendEmail', function (req, res)
     .then(
       (auth) => {
         sendEmail(auth, options);
-        res.status(200)
+        res.status(200).json("sent receipt")
       }
     )
     .catch(console.error);
@@ -183,9 +188,8 @@ function generatePdf(data) {
   var doc = new jsPDF('p', 'pt', 'a4')
   // Supply data via script
   var body = [
-             ['No', 'Event Name', 'Date', 'time'],
-             [1, data.name , data.date, data.date],
-             ]
+             ['No', 'Event Name', 'Date', 'time', 'Description'],
+             [1, data.name , data.date.toLocaleDateString(), data.date.toLocaleTimeString(), data.description]]
   // generate auto table with body
   var y = 10;
   doc.setLineWidth(2);
@@ -202,20 +206,16 @@ function generatePdf(data) {
   return Buffer.from(doc.output('arraybuffer'));
 }
 
-app.post('/sendBulkEmail', function (req, res)
+app.post('/sendBulkEmail',  upload.single('attach'), function (req, res)
 {
-  const {users} = req.body;
-  
-  const htmlTemplatePath = path.join(process.cwd(), 'emailTemplate.html');
-  let emailBody = sfs.readFileSync(htmlTemplatePath, 'utf8');
-
-
+  const {users, subject, emailBody} = req.body;
+  const attach = req.file;
   const options = {
     recipients: users,
-    subject: 'MindWell Monthly letter',
+    subject: subject,
     body: emailBody,
-    attachment: null,
-    filename: 'Event in MindWell',
+    attachment: attach.buffer,
+    filename: attach.originalname,
   };
   authorize()
     .then(
@@ -245,4 +245,8 @@ function generateEmailTemplate(recipientName, content) {
     </html>
   `;
 }
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
 

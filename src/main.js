@@ -21,6 +21,7 @@ import Toolbar from 'primevue/toolbar';
 import SelectButton from 'primevue/selectbutton';
 
 import Tooltip from 'primevue/tooltip';
+import { QuillEditor } from '@vueup/vue-quill';
 
 
 /**
@@ -68,6 +69,7 @@ app.component('ToggleButton', ToggleButton);
 app.component('Toolbar', Toolbar);
 app.component('SelectButton', SelectButton);
 app.directive('tooltip', Tooltip);
+app.component('QuillEditor', QuillEditor);
 /**
  * Mounts the Vue application to the DOM.
  * @param {string} selector - The CSS selector for the mount point.

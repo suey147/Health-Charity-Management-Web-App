@@ -170,9 +170,7 @@ exports.getUsers = onRequest((req, res) => {
       if (snapshot.empty) {
         return res.status(400).send("User not found");
       }
-      const data = snapshot.data();
-
-      const results = data.map((doc) => ({
+      const results = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
