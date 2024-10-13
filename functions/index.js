@@ -11,6 +11,10 @@ const {FieldValue} = require("firebase-admin/firestore");
 const cors = require("cors")({origin: true});
 const {onRequest} = require("firebase-functions/v2/https");
 const {onDocumentCreated} = require("firebase-functions/v2/firestore");
+const {authorize, sendEmail, generatePdf} = require("./server");
+const {generateEmailTemplate} = require("./server");
+const axios = require("axios");
+const express = require("express");
 
 admin.initializeApp();
 
@@ -181,3 +185,93 @@ exports.getUsers = onRequest((req, res) => {
     }
   });
 });
+
+exports.sendEmail = onRequest(async (req, res) => {
+  const {data, user} = req.body;
+  if (!data) {
+    return res.status(400).send("No file upload.");
+  }
+  const attachment = generatePdf(data);
+
+  const options = {
+    recipients: user.email,
+    subject: "Registered Events",
+    body: generateEmailTemplate(user.username,
+        "Please find the attached report."),
+    attachment: attachment,
+    filename: "Event_registered_confirmation.pdf",
+  };
+  authorize()
+      .then(
+          (auth) => {
+            sendEmail(auth, options);
+            res.status(200).json("sent receipt");
+          },
+      )
+      .catch(console.error);
+});
+
+exports.sendBulkEmail=onRequest(async (req, res) => {
+  const {users, subject, emailBody, attachment} = req.body;
+  const attach = req.file;
+  const options = {
+    recipients: users,
+    subject: subject,
+    body: emailBody,
+    attachment: Buffer.from(attachment, "base64"),
+    filename: attach.originalname,
+  };
+  authorize()
+      .then(
+          (auth) => {
+            sendEmail(auth, options);
+            res.status(200);
+          },
+      )
+      .catch(console.error);
+});
+
+const app = express();
+
+app.get("/api/events", async (req, res) => {
+  try {
+    const response = await axios.get(
+        "https://getevents-bj37ljbsda-uc.a.run.app",
+    );
+    const documents = response.data;
+    const formattedDocs = documents.map((doc) => {
+      const formattedData = {...doc};
+      if (formattedData.date) {
+        console.log(doc.date);
+        const eventDate = new Date(doc.date._seconds*1000 );
+        formattedData.date = eventDate;
+      }
+      if (formattedData.start) {
+        const eventDate = new Date(doc.start._seconds * 1000);
+        formattedData.start = eventDate;
+      }
+      if (formattedData.end) {
+        const eventDate = new Date(doc.end._seconds * 1000);
+        formattedData.end = eventDate;
+      }
+      delete formattedData.registeredUsers;
+      return formattedData;
+    });
+    res.status(200).send(formattedDocs);
+  } catch (error) {
+    res.status(500).send({error: "Unable to fetch events"});
+  }
+});
+
+
+app.get("api/knowledgehub", async (req, res) => {
+  try {
+    const response = await axios.get("https://getknowledgehubdoc-bj37ljbsda-uc.a.run.app");
+    const documents = response.data;
+    res.status(200).send(documents);
+  } catch (error) {
+    res.status(500).send({error: "Unable to fetch events"});
+  }
+});
+
+exports.api = onRequest(app);
