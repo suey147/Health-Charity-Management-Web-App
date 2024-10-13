@@ -102,7 +102,7 @@ async function sendEmail(auth, options) {
   ];
 
   if (attachment) {
-    const base64Attachment = attachment.toString("base64");
+    const base64Attachment = Buffer.from(attachment, "base64");
     emailLines.push(
         "--012boundary01",
         `Content-Type: Application/pdf; name=${filename}`,
@@ -145,8 +145,8 @@ function generatePdf(data) {
   // Supply data via script
   const body = [
     ["No", "Event Name", "Date", "time", "Description"],
-    [1, data.name, data.date.toLocaleDateString(),
-      data.date.toLocaleTimeString(), data.description]];
+    [1, data.name, data.start,
+      data.start, data.description]];
   // generate auto table with body
   let y = 10;
   doc.setLineWidth(2);

@@ -15,7 +15,7 @@
 
         <!-- Event List datatabe -->
         <DataTable v-model:filters="filters" :value="docs" ref="dt" :rows="10" dataKey="id" filterDisplay="menu" :loading="loading"
-        :globalFilterFields="['name', 'date', 'addr']" v-if="layout.value == 'list' && docs" paginator>
+        :globalFilterFields="['title', 'date', 'addr']" v-if="layout.value == 'list' && docs" paginator>
         <template #header>
             <div class="d-flex justify-content-between">
                 <Button icon="pi pi-external-link" label="Export" @click="exportCSV($event)" />
@@ -27,7 +27,8 @@
                 </IconField>
             </div>
         </template>
-
+        <template #empty> No event found. </template>
+        <template #loading> Loading event data. Please wait. </template>
             <!-- Event Image -->
             <Column field="image" style="width: 25%">
                 <template #body="slotProps">
@@ -37,7 +38,7 @@
                 </template>
             </Column>
             <!-- Event details -->
-            <Column header="Name" filterField="name" field="name" style="min-width: 12rem" sortable>
+            <Column header="Name" filterField="title" field="title" style="min-width: 12rem" sortable>
                 <template #body="{ data }">
                     <span>{{ data.title }}</span>
                 </template>
@@ -169,7 +170,7 @@ const router = useRouter();
 const initFilters = () => {
     filters.value = {
     global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-    name: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
+    title: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
     date: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
     addr: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
 }};

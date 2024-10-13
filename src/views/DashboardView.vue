@@ -48,7 +48,7 @@
             <template #body="{ data }">
                 <span>{{ data.username }}</span>
             </template>
-            <template #filter="{ filterModel, filterCallback }">
+            <template #filter="{ filterModel }">
                 <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Search by name" />
             </template>
         </Column>
@@ -107,7 +107,7 @@
             />
           </div>
 
-          <FileUpload ref="fileupload" class="form-control" id="fileupload" mode="basic" name="attach" accept="application/pdf" :maxFileSize="1000000" @select="onUpload" :auto="true" chooseLabel="Upload">
+          <FileUpload ref="fileupload" mode="basic" name="attach" accept="application/pdf" :maxFileSize="1000000" @select="onUpload" :auto="true" chooseLabel="Upload">
             </FileUpload>
             <label v-if="file !== null">{{ file.name }}</label>
         </div>
@@ -208,18 +208,26 @@
       }
       const users = selectedUsers.value.map(user => user.email)
       let uploadedFile = null;
+      console.log(uploadedFile)
       if (file.value){
-        uploadedFile = file.value
+        uploadedFile = await getBase64(file.value)
       }
 
       const formData = new FormData(); 
-
       formData.append('users', users);
       formData.append('attach', uploadedFile); 
       formData.append('subject', newEmail.value.subject); 
       formData.append('emailBody', newEmail.value.content); 
+
+      const payload = {
+          attach: uploadedFile, // The base64-encoded PDF
+          user: users,
+          subject: newEmail.value.subject,
+          emailBody: newEmail.value.content
+        };
+
       try {
-        const send = await axios.post('https://app-bj37ljbsda-uc.a.run.app/sendBulkEmail', formData, {headers: {'Content-Type': 'multipart/form-data'}});
+        const send = await axios.post('https://app-bj37ljbsda-uc.a.run.app/sendBulkEmail', payload);
         toast.add({ severity: 'success', summary:  'Bulk email sent', detail: 'Emails has sent to selected users', life: 3000 });
         newEmail.value = { users: '', subject: '', content: '', attach: '' };
         file.value = null;
@@ -285,6 +293,16 @@
       toast.add({ severity: 'info', summary: 'Success', detail: 'File Uploaded', life: 3000 });
       file.value = fileupload.value.files[0]
     };
+
+
+    const getBase64 = async(file) => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result.split(',')[1]); // Remove the 'data:application/pdf;base64,' part
+        reader.onerror = error => reject(error);
+      });
+      }
 </script>
 
 <style scoped>

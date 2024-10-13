@@ -8,7 +8,7 @@
  */
 const admin = require("firebase-admin");
 const {FieldValue} = require("firebase-admin/firestore");
-const cors = require("cors");
+const cors = require("cors")({origin: true});
 const {onRequest} = require("firebase-functions/v2/https");
 const {onDocumentCreated} = require("firebase-functions/v2/firestore");
 const {authorize, sendEmail, generatePdf} = require("./server");
@@ -17,7 +17,7 @@ const axios = require("axios");
 const express = require("express");
 
 admin.initializeApp();
-process.env.NODE_ENV = 'production';
+process.env.NODE_ENV = "production";
 
 exports.getKnowledgeHubDoc = onRequest((req, res) => {
   cors(req, res, async () => {
@@ -190,7 +190,7 @@ exports.getUsers = onRequest((req, res) => {
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
-app.use(cors());
+app.use(cors);
 app.post("/sendEmail", async (req, res) => {
   cors(req, res, async () => {
     const {data, user} = req.body;
@@ -220,13 +220,17 @@ app.post("/sendEmail", async (req, res) => {
 
 app.post("/sendBulkEmail", async (req, res) => {
   cors(req, res, async () => {
-    const {users, subject, emailBody, attachment} = req.body;
-    const attach = req.file;
+    const {users, subject, emailBody, attach} = req.body;
+    if (!attach) {
+      return res.status(400).send("No file or user data provided.");
+    }
+
+    // const pdfBuffer = Buffer.from(attach, "base64");
     const options = {
       recipients: users,
       subject: subject,
       body: emailBody,
-      attachment: Buffer.from(attachment, "base64"),
+      attachment: attach,
       filename: attach.originalname,
     };
     authorize()

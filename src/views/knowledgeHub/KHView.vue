@@ -23,13 +23,15 @@
             </template>
             <template #expansion="slotProps" >
                 <div class="p-4">
-                    <DataTable v-if="slotProps.data.documents" v-model:filters="filters" :value="slotProps.data.documents" @rowClick="onRowClick" paginator :rows="10" filterDisplay="row">
+                    <DataTable v-if="slotProps.data.documents" v-model:filters="filters" dataKey="id" :value="slotProps.data.documents" @rowClick="onRowClick" paginator :rows="10" filterDisplay="row">
+                        <template #empty> No knowledge-hub found. </template>
+                        <template #loading> Loading knowledge-hub data. Please wait. </template>
                         <Column field="title" filterField="title" header="Title" sortable>
                             <template #body="{ data }">
                                 <span>{{ data.title }}</span>
                             </template>
                             <template #filter="{ filterModel, filterCallback }">
-                                <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Search by name" />
+                                <InputText v-model="filterModel.value" type="text" @input="filterCallback()" placeholder="Search by name" />
                             </template>
                         </Column>
                         <Column field="date" filterField="date" header="Date" sortable>
@@ -42,8 +44,8 @@
                         </Column>
                         <Column field="rating" filterField="rating" header="Reviews" :showFilterMenu="false" sortable>
                             <template #body="{ data }">
-                                <Rating :modelValue="data.rating[0]"/>
-                                {{ data.rating[0] }}
+                                <Rating :modelValue="Math.ceil(data.rating[0])"/>
+                                {{ Math.ceil(data.rating[0]) }}
                             </template>
                             <template #filter="{ filterModel, filterCallback }">
                                 <Select v-model="filterModel.value" @change="filterCallback()" :options="rate" placeholder="Select One" style="min-width: 12rem" :showClear="true">
@@ -192,9 +194,9 @@
     const initFilters = () => {
         filters.value = {
             global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-            title: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.STARTS_WITH }] },
-            date: { operator: FilterOperator.AND, constraints: [{ value: null, matchMode: FilterMatchMode.DATE_IS }] },
-            rating: { value: null, matchMode: FilterMatchMode.EQUALS },
+            title: { value: null, matchMode: FilterMatchMode.CONTAINS },
+            date: {  value: null, matchMode: FilterMatchMode.DATE_IS},
+            rating: { value: null, matchMode: FilterMatchMode.GREATER_THAN },
         };
     };
     initFilters();
