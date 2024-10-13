@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { response } from 'express';
 import path from 'path'
 import { google } from 'googleapis';
 import fs from 'fs/promises';
@@ -100,7 +100,7 @@ async function sendEmail(auth, options) {
   const gmail = google.gmail({version: 'v1', auth});
 
   const {recipients, subject, body, attachment, filename, sender = 'hlau0017@student.monash.edu'} = options;
-
+  const content = generateEmailTemplate('users', body);
   const recipientList = Array.isArray(recipients) ? recipients.join(',') : recipients;
   const emailLines = [
     'MIME-Version: 1.0',
@@ -118,7 +118,7 @@ async function sendEmail(auth, options) {
     "Content-type: text/html; charset=UTF-8", 
     "Content-Transfer-Encoding: quoted-printable",
     '',
-    body,
+    content,
     '',
     "--012boundary02--",
   ];
@@ -159,30 +159,29 @@ async function sendEmail(auth, options) {
 
 }
 
-app.post('/sendEmail', function (req, res)
-{
-  const {data, user} = req.body;
+async function handleSendEmailRequest(request) {
+  const {data} = await request.json();
   if(!data){
-    return res.status(400).send('No file upload.');
+    return new Response(JSON.stringify({ message: 'Email sent failed' }), { status: 500 });
   }
-  const attachment = generatePdf(data);
 
   const options = {
-    recipients: user.email,
+    recipients: data.user.email,
     subject: 'Registered Events',
-    body: generateEmailTemplate(user.username, 'Please find the attached report.'),
-    attachment: attachment,
+    body: generateEmailTemplate(data.user.username, 'Please find the attached report.'),
+    attachment:  generatePdf(data.data),
     filename: 'Event_registered_confirmation.pdf',
   };
   authorize()
     .then(
-      (auth) => {
-        sendEmail(auth, options);
-        res.status(200).json("sent receipt")
+      async (auth) => {
+        await sendEmail(auth, options);
+        return new Response(JSON.stringify({ message: 'Email sent successfully' }), { status: 200 });
       }
     )
     .catch(console.error);
-});
+  
+}
 
 function generatePdf(data) {
   var doc = new jsPDF('p', 'pt', 'a4')
@@ -205,28 +204,20 @@ function generatePdf(data) {
   // sfs.writeFileSync('./test.pdf', pdfBuffer); 
   return Buffer.from(doc.output('arraybuffer'));
 }
-
-app.post('/sendBulkEmail',  upload.single('attach'), function (req, res)
-{
-  const {users, subject, emailBody} = req.body;
-  const attach = req.file;
+async function handleSendBulkEmailRequest(request) {
+  const { users, subject, emailBody, attachment } = await request.json();
   const options = {
-    recipients: users,
-    subject: subject,
-    body: emailBody,
-    attachment: attach.buffer,
-    filename: attach.originalname,
+      recipients: users,
+      subject: subject,
+      body: emailBody,
+      attachment: attachment, // Handle attachment based on how you send it
+      filename: attachment.name,
   };
-  authorize()
-    .then(
-      (auth) => {
-        sendEmail(auth, options);
-        res.status(200)
-      }
-    )
-    .catch(console.error);
-});
 
+  const auth = await authorize();
+  await sendEmail(auth, options);
+  return new Response(JSON.stringify({ message: 'Bulk emails sent successfully' }), { status: 200 });
+}
 /**
  * Generates an email body template.
  * 
@@ -278,17 +269,77 @@ catch(error){
 });
 
 
-app.get('/api/knowledgehub', async (req, res) => {
+// Event API Handler
+async function handleEventsRequest() {
   try {
-    const response = await axios.get('https://getknowledgehubdoc-bj37ljbsda-uc.a.run.app');
-    const documents = response.data;
-    res.status(200).send(documents);
+      const response = await axios.get('https://getevents-bj37ljbsda-uc.a.run.app');
+      const documents = response.data;
+      const formattedDocs = documents.map(doc => {
+          let formattedData = { ...doc };
+          if (formattedData.date) {
+              const eventDate = new Date(doc.date._seconds * 1000);
+              formattedData.date = eventDate;
+          }
+          if (formattedData.start) {
+              const eventDate = new Date(doc.start._seconds * 1000);
+              formattedData.start = eventDate;
+          }
+          if (formattedData.end) {
+              const eventDate = new Date(doc.end * 1000);
+              formattedData.end = eventDate;
+          }
+          delete formattedData.registeredUsers;
+          return formattedData;
+      });
+      return new Response(JSON.stringify(formattedDocs), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+      });
+  } catch (error) {
+      return new Response(JSON.stringify({ error: 'Unable to fetch events' }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' }
+      });
   }
-  catch(error){
-    res.status(500).send({error: 'Unable to fetch events'});
-  }
-});
+}
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-});
+async function handleKnowledgeHubRequest() {
+  try {
+      const response = await axios.get('https://getknowledgehubdoc-bj37ljbsda-uc.a.run.app');
+      const documents = response.data;
+      return new Response(JSON.stringify(documents), {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' }
+      });
+  } catch (error) {
+      return new Response(JSON.stringify({ error: 'Unable to fetch knowledge hub data' }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' }
+      });
+  }
+}
+
+// Main Event Handler
+async function handleRequest(request) {
+  const url = new URL(request.url);
+
+  if (url.pathname === '/api/events') {
+      return await handleEventsRequest();
+  } else if (url.pathname === '/api/sendEmail' && request.method === 'POST') {
+      return await handleSendEmailRequest(request);
+  } else if (url.pathname === '/api/sendBulkEmail' && request.method === 'POST') {
+      return await handleSendBulkEmailRequest(request);
+  } else if (url.pathname === '/api/knowledgehub') {
+      return await handleKnowledgeHubRequest();
+  }
+
+  // Return 404 for any other routes
+  return new Response('Not Found', { status: 404 });
+}
+
+// Exporting the handler for Cloudflare Workers
+export default {
+  async fetch(request) {
+      return handleRequest(request);
+  }
+};

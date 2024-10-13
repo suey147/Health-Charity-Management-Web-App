@@ -39,12 +39,14 @@
         <canvas id="userStatsChart"></canvas>
       </div>
     </div>
-
+    <div class="row mb-4">
+      <div class="col-md-12">
+    <h3>Send Bulk Email</h3>
     <DataTable v-if="users" v-model:selection="selectedUsers" v-model:filters="filters" :value="users" dataKey="id" paginator :rows="10" filterDisplay="row">
         <Column selectionMode="multiple" headerStyle="width: 3rem"></Column>
         <Column field="username" filterField="username" header="Name" sortable>
             <template #body="{ data }">
-                <span>{{ data.name }}</span>
+                <span>{{ data.username }}</span>
             </template>
             <template #filter="{ filterModel, filterCallback }">
                 <InputText v-model="filterModel.value" type="text" @input="filterCallback()" class="p-column-filter" placeholder="Search by name" />
@@ -71,7 +73,9 @@
             </template>
         </Column>
     </DataTable>
-    <button type="submit" class="btn btn-primary" @click="emailDialog=true">Submit</button>
+    <button type="submit" class="btn btn-primary" @click="emailDialog=true">Write email</button>
+    </div>
+    </div>
   </div>
   <Toast/>
 
@@ -103,18 +107,20 @@
             />
           </div>
 
-          <FileUpload ref="fileupload" mode="basic" name="attach" accept="application/pdf" :maxFileSize="1000000" @select="onUpload" :auto="true" chooseLabel="Browse" />
+          <FileUpload ref="fileupload" class="form-control" id="fileupload" mode="basic" name="attach" accept="application/pdf" :maxFileSize="1000000" @select="onUpload" :auto="true" chooseLabel="Upload">
+            </FileUpload>
+            <label v-if="file !== null">{{ file.name }}</label>
         </div>
-        <div>
+        <div class="d-flex justify-content-end">
           <button class="bi bi-times btn btn-light" text @click="emailDialog=false" type="button">Cancel</button>
-          <button class="bi bi-check btn btn-primary" type="submit">Save</button>
+          <button class="bi bi-check btn btn-primary" type="submit">Send</button>
         </div>
       </form>
     </Dialog>
 </template>
 
 <script setup>
-    import { onMounted, ref } from 'vue'
+    import { onMounted, ref, watch } from 'vue'
     import { db } from '../firebase' // Import Firebase configuration
     import { doc, getDoc } from 'firebase/firestore'
     import Chart from 'chart.js/auto'
@@ -213,7 +219,7 @@
       formData.append('subject', newEmail.value.subject); 
       formData.append('emailBody', newEmail.value.content); 
       try {
-        const send = await axios.post('http://localhost:3000/sendBulkEmail', formData, {headers: {'Content-Type': 'multipart/form-data'}});
+        const send = await axios.post('https://d3955404.fit5032-assignment.pages.dev/sendBulkEmail', formData, {headers: {'Content-Type': 'multipart/form-data'}});
         toast.add({ severity: 'success', summary:  'Bulk email sent', detail: 'Emails has sent to selected users', life: 3000 });
         newEmail.value = { users: '', subject: '', content: '', attach: '' };
         file.value = null;
@@ -227,6 +233,7 @@
           emailDialog.value = false
           console.log('Error register event: ', error);
       }
+      emailDialog.value = false
     }
 
     const createUserStatsChart = (data) => {
@@ -238,7 +245,7 @@
           datasets: [
             {
               label: 'Number of Users',
-              data: [data.donor, data.participant, data.volunteers],
+              data: [data.donor, data.participant, data.volunteer],
               backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
               borderColor: ['#FF6384', '#36A2EB', '#FFCE56'],
               borderWidth: 1
