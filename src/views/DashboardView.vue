@@ -219,7 +219,7 @@
       formData.append('subject', newEmail.value.subject); 
       formData.append('emailBody', newEmail.value.content); 
       try {
-        const send = await axios.post('https://d3955404.fit5032-assignment.pages.dev/sendBulkEmail', formData, {headers: {'Content-Type': 'multipart/form-data'}});
+        const send = await axios.post('https://fit5032-assignment.pages.dev/sendBulkEmail', formData, {headers: {'Content-Type': 'multipart/form-data'}});
         toast.add({ severity: 'success', summary:  'Bulk email sent', detail: 'Emails has sent to selected users', life: 3000 });
         newEmail.value = { users: '', subject: '', content: '', attach: '' };
         file.value = null;
