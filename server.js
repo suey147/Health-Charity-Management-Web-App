@@ -10,7 +10,7 @@ import cors from 'cors';
 import { fileURLToPath } from 'url';
 import { applyPlugin } from 'jspdf-autotable';
 import multer from 'multer';
-
+import axios from 'axios';
 const app = express();
 const port = 3000;
 const router = express.Router();
@@ -246,7 +246,49 @@ function generateEmailTemplate(recipientName, content) {
   `;
 }
 
+app.get('/api/events', async (req, res) => {
+  try {
+  const response = await axios.get(
+    'https://getevents-bj37ljbsda-uc.a.run.app'
+  );
+  const documents = response.data;
+  const formattedDocs = documents.map(doc => {
+      let formattedData = {...doc};
+      if(formattedData.date) {
+          console.log(doc.date)
+          const eventDate = new Date(doc.date._seconds*1000 );
+          formattedData.date = eventDate;
+      }
+      if(formattedData.start) {
+          const eventDate = new Date(doc.start._seconds * 1000);
+          formattedData.start = eventDate;
+      }
+      if(formattedData.end) {
+          const eventDate = new Date(doc.end._seconds * 1000);
+          formattedData.end = eventDate;
+      }
+      delete formattedData.registeredUsers
+      return formattedData;
+  })
+  res.status(200).send(formattedDocs);
+}
+catch(error){
+  res.status(500).send({error: 'Unable to fetch events'});
+}
+});
+
+
+app.get('/api/knowledgehub', async (req, res) => {
+  try {
+    const response = await axios.get('https://getknowledgehubdoc-bj37ljbsda-uc.a.run.app');
+    const documents = response.data;
+    res.status(200).send(documents);
+  }
+  catch(error){
+    res.status(500).send({error: 'Unable to fetch events'});
+  }
+});
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
-
