@@ -383,7 +383,7 @@ const registerEvent = async(event) => {
                 // const response = await axios.post('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/registerEvent', {userId: userId,eventId: eventId });
                 const response = await axios.post('https://registerevent-bj37ljbsda-uc.a.run.app', {userId: userId,eventId: event.id });
                 const userDetails = JSON.parse(sessionStorage.getItem("details"));
-                const send = await axios.post('https://sendemail-bj37ljbsda-uc.a.run.app',{data: selectedEvent.value, user: userDetails});
+                const send = await axios.post('https://app-bj37ljbsda-uc.a.run.app/sendEmail',{data: selectedEvent.value, user: userDetails});
                 toast.add({ severity: 'success', summary:  'Registered' + selectedEvent.value.name, detail: 'Receipt has send to your email', life: 3000 });
             }else{
                 toast.add({ severity: 'error', summary: 'Error Message', detail: 'Event clash with other events', life: 3000 });
