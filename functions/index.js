@@ -15,9 +15,10 @@ const {authorize, sendEmail, generatePdf} = require("./server");
 const {generateEmailTemplate} = require("./server");
 const axios = require("axios");
 const express = require("express");
+const fileParser = require("express-multipart-file-parser");
+
 
 admin.initializeApp();
-process.env.NODE_ENV = "production";
 
 exports.getKnowledgeHubDoc = onRequest((req, res) => {
   cors(req, res, async () => {
@@ -191,108 +192,118 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(cors);
+app.use(fileParser);
 app.post("/sendEmail", async (req, res) => {
   cors(req, res, async () => {
-    const {data, user} = req.body;
-    if (!data) {
-      return res.status(400).send("No file upload.");
-    }
-    const attachment = generatePdf(data);
-
-    const options = {
-      recipients: user.email,
-      subject: "Registered Events",
-      body: generateEmailTemplate(user.username,
-          "Please find the attached report."),
-      attachment: attachment,
-      filename: "Event_registered_confirmation.pdf",
-    };
-    authorize()
-        .then(
-            (auth) => {
-              sendEmail(auth, options);
-              res.status(200).json("sent receipt");
-            },
-        )
-        .catch(console.error);
-  });
-});
-
-app.post("/sendBulkEmail", async (req, res) => {
-  cors(req, res, async () => {
-    const {users, subject, emailBody, attach} = req.body;
-    if (!attach) {
-      return res.status(400).send("No file or user data provided.");
-    }
-
-    // const pdfBuffer = Buffer.from(attach, "base64");
-    const options = {
-      recipients: users,
-      subject: subject,
-      body: emailBody,
-      attachment: attach,
-      filename: attach.originalname,
-    };
-    authorize()
-        .then(
-            (auth) => {
-              sendEmail(auth, options);
-              res.status(200);
-            },
-        )
-        .catch(console.error);
-  });
-});
-
-app.get("/api/events", async (req, res) => {
-  cors(req, res, async () => {
     try {
-      const response = await axios.get(
-          "https://getevents-bj37ljbsda-uc.a.run.app",
-      );
-      const documents = response.data;
-      const formattedDocs = documents.map((doc) => {
-        const formattedData = {...doc};
-        if (formattedData.date) {
-          console.log(doc.date);
-          const eventDate = new Date(doc.date._seconds*1000 );
-          formattedData.date = eventDate;
-        }
-        if (formattedData.start) {
-          const eventDate = new Date(doc.start._seconds * 1000);
-          formattedData.start = eventDate;
-        }
-        if (formattedData.end) {
-          const eventDate = new Date(doc.end._seconds * 1000);
-          formattedData.end = eventDate;
-        }
-        delete formattedData.registeredUsers;
-        return formattedData;
-      });
-      res.status(200).send(formattedDocs);
+      const {data, user} = req.body;
+      if (!data) {
+        return res.status(400).send("No file upload.");
+      }
+      const attachment = generatePdf(data);
+
+      const options = {
+        recipients: user.email,
+        subject: "Registered Events",
+        body: generateEmailTemplate(user.username,
+            "Please find the attached report."),
+        attachment: attachment,
+        filename: "Event_registered_confirmation.pdf",
+      };
+      authorize()
+          .then(
+              (auth) => {
+                sendEmail(auth, options);
+                res.status(200).json("sent receipt");
+              },
+          )
+          .catch(console.error);
+      res.status(200).send("Email sent");
     } catch (error) {
       res.status(500).send({error: "Unable to fetch events"});
     }
   });
 });
 
-
-app.get("/api/knowledgehub", async (req, res) => {
+app.post("/sendBulkEmail", (req, res) => {
   cors(req, res, async () => {
     try {
-      const docCollection = admin.firestore().collection("knowledgeHub");
-      const snapshot = await docCollection.get();
-      if (snapshot.empty) {
-        return res.status(500).send("No events");
+      if (req.files[0] == "undefined") {
+        return res.status(400).send("No file or user data provided.");
       }
-      const documents = snapshot.docs.map((doc) => ({
-        id: doc.id, ...doc.data()}));
-      res.status(200).send(documents);
+      const {
+        originalname,
+        buffer,
+      } = req.files[0];
+      const {users, subject, emailBody} = req.body;
+
+      const options = {
+        recipients: users,
+        subject: subject,
+        body: emailBody,
+        attachment: buffer,
+        filename: originalname,
+      };
+      authorize()
+          .then(
+              (auth) => {
+                sendEmail(auth, options);
+                res.status(200);
+              },
+          )
+          .catch(console.error);
+      res.status(200).send("Email sent");
     } catch (error) {
-      console.error("Error getting knowledgeHub: ", error.message);
-      res.status(500).send("Error getting knowledgeHub");
+      res.status(500).send({error: "Unable to fetch events"});
     }
   });
+});
+
+app.get("/api/events", async (req, res) => {
+  try {
+    const response = await axios.get(
+        "https://getevents-bj37ljbsda-uc.a.run.app",
+    );
+    const documents = response.data;
+    const formattedDocs = documents.map((doc) => {
+      const formattedData = {...doc};
+      if (formattedData.date) {
+        console.log(doc.date);
+        const eventDate = new Date(doc.date._seconds*1000 );
+        formattedData.date = eventDate;
+      }
+      if (formattedData.start) {
+        const eventDate = new Date(doc.start._seconds * 1000);
+        formattedData.start = eventDate;
+      }
+      if (formattedData.end) {
+        const eventDate = new Date(doc.end._seconds * 1000);
+        formattedData.end = eventDate;
+      }
+      delete formattedData.registeredUsers;
+      return formattedData;
+    });
+    res.status(200).send(formattedDocs);
+  } catch (error) {
+    res.status(500).send({error: "Unable to fetch events"});
+  }
+});
+
+
+app.get("/api/knowledgehub", async (req, res) => {
+  try {
+    const docCollection = admin.firestore().collection("knowledgeHub");
+    const snapshot = await docCollection.get();
+    if (snapshot.empty) {
+      return res.status(500).send("No events");
+    }
+    const documents = snapshot.docs.map((doc) => ({
+      id: doc.id, ...doc.data()}));
+    res.status(200).send(documents);
+  } catch (error) {
+    console.error("Error getting knowledgeHub: ", error.message);
+    res.status(500).send("Error getting knowledgeHub");
+  }
 });
 
 exports.app = onRequest(app);

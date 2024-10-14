@@ -208,9 +208,10 @@
       }
       const users = selectedUsers.value.map(user => user.email)
       let uploadedFile = null;
-      console.log(uploadedFile)
+      
       if (file.value){
-        uploadedFile = await getBase64(file.value)
+        // uploadedFile = await getBase64(file.value)
+        uploadedFile = file.value
       }
 
       const formData = new FormData(); 
@@ -219,15 +220,13 @@
       formData.append('subject', newEmail.value.subject); 
       formData.append('emailBody', newEmail.value.content); 
 
-      const payload = {
-          attach: uploadedFile, // The base64-encoded PDF
-          user: users,
-          subject: newEmail.value.subject,
-          emailBody: newEmail.value.content
-        };
-
       try {
-        const send = await axios.post('https://app-bj37ljbsda-uc.a.run.app/sendBulkEmail', payload);
+        const send = await axios.post('https://app-bj37ljbsda-uc.a.run.app/sendBulkEmail', formData,  {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
         toast.add({ severity: 'success', summary:  'Bulk email sent', detail: 'Emails has sent to selected users', life: 3000 });
         newEmail.value = { users: '', subject: '', content: '', attach: '' };
         file.value = null;

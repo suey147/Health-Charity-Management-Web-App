@@ -1,35 +1,18 @@
 # FIT5032-Assignment
 
-This template should help get you started developing with Vue 3 in Vite.
+To run frontend: npm run dev
+To run backend: node server.js
 
-## Recommended IDE Setup
+Running backend along with frontend
+1. Build the frontend: npm run build
+2. Run node server.js
+3. http://localhost:8080
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+To run firebase emulator:
+firebase emulator:start
 
-## Customize configuration
+For testing admin account:
+email: admin@test.com
+password: Test1234!
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+To test email functionality, please register with valid email.

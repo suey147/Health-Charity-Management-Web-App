@@ -102,7 +102,7 @@ async function sendEmail(auth, options) {
   ];
 
   if (attachment) {
-    const base64Attachment = Buffer.from(attachment, "base64");
+    const base64Attachment = attachment.toString("base64");
     emailLines.push(
         "--012boundary01",
         `Content-Type: Application/pdf; name=${filename}`,

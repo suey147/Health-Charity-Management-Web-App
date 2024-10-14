@@ -110,7 +110,7 @@
             <div class="d-flex gap-4 mt-1">
                 <Button label="Direction" severity="primary" class="w-full" @click="addNavigation(selectedEvent.coordinates)" v-if="layout.value=='map'"/>
                 <Button label="Registered" v-if="registeredEvent!=null && registeredEvent.includes(selectedEvent.id)" class="w-full"/>
-                <Button label="Register" v-else class="w-full" @click="registerEvent(selectedEvent)"/>
+                <Button label="Register" v-if="isLoggedIn=='true' &&!registeredEvent.includes(selectedEvent.id)" class="w-full" @click="registerEvent(selectedEvent)"/>
                 <Button label="Login To Register" v-if="isLoggedIn!='true'" class="w-full" @click="navigateToLogin"/>
             </div>
         </template>
