@@ -16,3 +16,4 @@ email: admin@test.com
 password: Test1234!
 
 To test email functionality, please register with valid email.
+Cloudflare website: https://fit5032-assignment.pages.dev/
