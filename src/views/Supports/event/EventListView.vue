@@ -110,7 +110,15 @@
             <div class="d-flex gap-4 mt-1">
                 <Button label="Direction" severity="primary" class="w-full" @click="addNavigation(selectedEvent.coordinates)" v-if="layout.value=='map'"/>
                 <Button label="Registered" v-if="registeredEvent!=null && registeredEvent.includes(selectedEvent.id)" class="w-full"/>
-                <Button label="Register" v-if="isLoggedIn=='true' &&!registeredEvent.includes(selectedEvent.id)" class="w-full" @click="registerEvent(selectedEvent)"/>
+                <!-- Show when logged in and registered event does not include selectedEvent -->
+                <div v-if="isLoggedIn === 'true' && Array.isArray(registeredEvent) && !registeredEvent.includes(selectedEvent.id)">
+                    <Button label="Register" class="w-full" @click="registerEvent(selectedEvent)"/>
+                </div>
+                <div v-else-if="isLoggedIn === 'true' && (!registeredEvent || (Array.isArray(registeredEvent) && registeredEvent.length === 0))">
+                    <!-- Content to display when logged in but have no registered events -->
+                    <Button label="Register" class="w-full" @click="registerEvent(selectedEvent)"/>
+                </div>
+                
                 <Button label="Login To Register" v-if="isLoggedIn!='true'" class="w-full" @click="navigateToLogin"/>
             </div>
         </template>
@@ -238,7 +246,7 @@ const handleDateClick = () => {
     }
 const handleEventClick = (arg) => {
     console.log(arg.event)
-    selectedEvent.value = {...arg.event._def.extendedProps, ...arg.event._instance.range};
+    selectedEvent.value = {...arg.event._def.extendedProps, ...arg.event._instance.range, id: arg.event._def.publicId};
     visible.value = true;
 };
 
@@ -287,9 +295,15 @@ const getUserRegisteredEvents = async () => {
         'https://getuserregisteredevents-bj37ljbsda-uc.a.run.app', {userId: userId}
         );
         const documents = response.data;
-        const documentIds = documents.map(doc => doc.id);
-        registeredEvent.value = documentIds;
-        console.log(documentIds)
+        if (documents && documents.length > 0) {
+            console.log(documents)
+            const documentIds = documents.map(doc => doc.id);
+            registeredEvent.value = documentIds;
+            console.log(documentIds);
+        } else {
+            registeredEvent.value = [];
+            console.log("No documents found.");
+        }
     }
   } catch (error) {
     console.error('Error fetching registered events: ', error);
@@ -302,12 +316,11 @@ const mergedEvents = computed(() => {
   // Create a map of registered events for easy lookup
   let markedDocs = docs.value;
   if(registeredEvent.value && docs.value){
-    console.log(registeredEvent.value)
     markedDocs = docs.value.map(event => {
         if (registeredEvent.value.includes(event.id)) {
-            return { ...event, type: 'registered' }; // Mark as registered if found
+            return { ...event, type: 'registered', id: event.id }; // Mark as registered if found
         }
-        return { ...event, type: 'available' }; // Mark as available
+        return { ...event, type: 'available', id: event.id }; // Mark as available
     });
   }
     return markedDocs;
@@ -382,6 +395,7 @@ const registerEvent = async(event) => {
         if (userId){
             if(isConflict(event) == false){
                 // const response = await axios.post('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/registerEvent', {userId: userId,eventId: eventId });
+                console.log(event)
                 const response = await axios.post('https://registerevent-bj37ljbsda-uc.a.run.app', {userId: userId,eventId: event.id });
                 const userDetails = JSON.parse(sessionStorage.getItem("details"));
                 const send = await axios.post('https://app-bj37ljbsda-uc.a.run.app/sendEmail',{data: selectedEvent.value, user: userDetails});
