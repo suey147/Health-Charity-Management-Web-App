@@ -245,8 +245,7 @@ const handleDateClick = () => {
     toast.add({ severity: 'success', summary:  'Date is clicked', detail: 'date is clicked', life: 3000 });
     }
 const handleEventClick = (arg) => {
-    console.log(arg.event)
-    selectedEvent.value = {...arg.event._def.extendedProps, ...arg.event._instance.range, id: arg.event._def.publicId};
+    selectedEvent.value = {...arg.event._def.extendedProps, start: arg.event.start, id: arg.event.id};
     visible.value = true;
 };
 
@@ -329,6 +328,9 @@ const mergedEvents = computed(() => {
 const isConflict = (newEvent) => {
     if(registeredEvent.value){
         return mergedEvents.value.some((event) => {
+            console.log(event.type)
+            console.log(new Date(event.start).getTime())
+            console.log(new Date(newEvent.start).getTime())
             return (new Date(event.start).getTime() === new Date(newEvent.start).getTime()) && (event.type == "registered")
         })
     }else{
@@ -395,11 +397,12 @@ const registerEvent = async(event) => {
         if (userId){
             if(isConflict(event) == false){
                 // const response = await axios.post('http://127.0.0.1:5001/fit5032-assignment-ce36f/us-central1/registerEvent', {userId: userId,eventId: eventId });
-                console.log(event)
                 const response = await axios.post('https://registerevent-bj37ljbsda-uc.a.run.app', {userId: userId,eventId: event.id });
                 const userDetails = JSON.parse(sessionStorage.getItem("details"));
                 const send = await axios.post('https://app-bj37ljbsda-uc.a.run.app/sendEmail',{data: selectedEvent.value, user: userDetails});
                 toast.add({ severity: 'success', summary:  'Registered' + selectedEvent.value.name, detail: 'Receipt has send to your email', life: 3000 });
+                const redirect = router.currentRoute.value.query.redirect || { name: 'Events' }
+                router.push(redirect)
             }else{
                 toast.add({ severity: 'error', summary: 'Error Message', detail: 'Event clash with other events', life: 3000 });
             }
